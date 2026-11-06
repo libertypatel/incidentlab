@@ -1,0 +1,156 @@
+{
+  "contract_version": "1.0",
+  "run_id": "run_demo",
+  "controller": "manual",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "incident_demo",
+    "order_id": "order_demo",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "e1",
+        "tool": "get_local_order",
+        "observed_at": "2026-11-05T20:00:00Z",
+        "status": "OK",
+        "data": {
+          "order_id": "order_demo",
+          "provider_order_id": "provider_demo",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        }
+      },
+      {
+        "evidence_id": "e2",
+        "tool": "get_paypal_order",
+        "observed_at": "2026-11-05T20:00:00Z",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "provider_demo",
+          "status": "COMPLETED",
+          "purchase_unit": {
+            "provider_order_id": "provider_demo",
+            "custom_id": "order_demo",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": [
+            {
+              "capture_id": "capture_demo",
+              "status": "COMPLETED",
+              "currency": "USD",
+              "amount": "1.00"
+            }
+          ]
+        }
+      },
+      {
+        "evidence_id": "e3",
+        "tool": "get_application_events",
+        "observed_at": "2026-11-05T20:00:00Z",
+        "status": "OK",
+        "data": {
+          "coverage": "COMPLETE",
+          "events": [
+            {
+              "event": "CAPTURE_DISPATCHED",
+              "message": "Application dispatched a capture request."
+            },
+            {
+              "event": "LOCAL_CONFIRMATION_UNAVAILABLE",
+              "message": "No durable local confirmation is available."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "decision_demo",
+    "action": "reconcile_order",
+    "order_id": "order_demo",
+    "summary": "Provider evidence shows a completed matching payment; the local order remains unconfirmed.",
+    "evidence_ids": [
+      "e1",
+      "e2"
+    ]
+  },
+  "execution": {
+    "decision_id": "decision_demo",
+    "action": "reconcile_order",
+    "status": "SUCCEEDED",
+    "message": "Committed local payment state and one simulated fulfillment; no capture request submitted."
+  },
+  "verification": {
+    "status": "VERIFIED",
+    "provider_order_id": "provider_demo",
+    "completed_capture_id": "capture_demo",
+    "local_payment_state": "PAID",
+    "fulfillment_count": 1,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "PASS"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "PASS"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "Local and provider observations collected.",
+      "evidence_ids": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "decision",
+      "summary": "Proposed local reconciliation.",
+      "evidence_ids": [
+        "e1",
+        "e2"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "execution",
+      "summary": "Local reconciliation succeeded.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 5,
+      "stage": "verification",
+      "summary": "Fresh provider and local checks passed.",
+      "evidence_ids": []
+    }
+  ]
+}

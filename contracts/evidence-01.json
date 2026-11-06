@@ -1,0 +1,56 @@
+{
+  "contract_version": "1.0",
+  "mode": "offline",
+  "incident_id": "incident_demo",
+  "order_id": "order_demo",
+  "symptom": "Checkout could not be confirmed",
+  "observations": [
+    {
+      "evidence_id": "e1",
+      "tool": "get_local_order",
+      "observed_at": "2026-11-05T20:00:00Z",
+      "status": "OK",
+      "data": {
+        "order_id": "order_demo",
+        "provider_order_id": "provider_demo",
+        "payment_state": "UNCONFIRMED",
+        "currency": "USD",
+        "amount": "1.00",
+        "capture_id": null,
+        "fulfillment_count": 0
+      }
+    },
+    {
+      "evidence_id": "e2",
+      "tool": "get_paypal_order",
+      "observed_at": "2026-11-05T20:00:00Z",
+      "status": "OK",
+      "data": {
+        "provider_order_id": "provider_demo",
+        "status": "APPROVED",
+        "purchase_unit": {
+          "provider_order_id": "provider_demo",
+          "custom_id": "order_demo",
+          "currency": "USD",
+          "amount": "1.00"
+        },
+        "captures": []
+      }
+    },
+    {
+      "evidence_id": "e3",
+      "tool": "get_application_events",
+      "observed_at": "2026-11-05T20:00:00Z",
+      "status": "OK",
+      "data": {
+        "coverage": "COMPLETE",
+        "events": [
+          {
+            "event": "CAPTURE_NOT_SENT",
+            "message": "Application did not dispatch a capture request."
+          }
+        ]
+      }
+    }
+  ]
+}
