@@ -1,0 +1,7 @@
+{
+  "request_id": "request_demo",
+  "tool": "get_paypal_order",
+  "arguments": {
+    "order_id": "order_demo"
+  }
+}
