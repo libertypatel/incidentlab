@@ -48,6 +48,30 @@ class GuardedTests(unittest.TestCase):
     def approve(self):
         return approve_capture(self.store, self.local, '1.00', 'USD')
 
+    def test_provider_amount_breakdown_is_supported(self):
+        unit = self.gateway.orders[self.remote]['purchase_units'][0]
+        unit['amount']['breakdown'] = {'item_total': {'value': '1.00', 'currency_code': 'USD'}}
+        self.assertEqual(self.run_action(token=self.approve())['status'], 'SUCCEEDED')
+        self.assertEqual(self.gateway.capture_calls, 1)
+        self.assertEqual(verify_recovery(self.path, self.gateway.get, self.local)['status'], 'VERIFIED')
+
+    def test_amount_breakdown_does_not_bypass_payment_checks(self):
+        unit = self.gateway.orders[self.remote]['purchase_units'][0]
+        original = deepcopy(unit)
+        for change in ({'value': '2.00'}, {'currency_code': 'EUR'}, {'value': None}):
+            unit.clear()
+            unit.update(deepcopy(original))
+            unit['amount']['breakdown'] = {'item_total': {'value': '1.00', 'currency_code': 'USD'}}
+            unit['amount'].update(change)
+            with self.subTest(change=change):
+                self.assertEqual(self.run_action(token=self.approve())['status'], 'BLOCKED')
+        unit.clear()
+        unit.update(deepcopy(original))
+        unit['custom_id'] = 'different-order'
+        unit['amount']['breakdown'] = {}
+        self.assertEqual(self.run_action(token=self.approve())['status'], 'BLOCKED')
+        self.assertEqual(self.gateway.capture_calls, 0)
+
     def test_one_mutating_proposal_attempt_per_investigation(self):
         session, decision = self.investigate()
         token = self.approve()
