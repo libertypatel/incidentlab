@@ -1,15 +1,50 @@
 """Read-only diagnostic boundary for contract v1; never authorizes recovery."""
 from copy import deepcopy
 from datetime import datetime, timezone
+from enum import Enum
 import re
 import sqlite3
 import uuid
 
 from incidentlab import LabError
 
-TOOLS = ("get_local_order", "get_paypal_order", "get_application_events")
-ORDER_STATES = {"CREATED", "APPROVED", "COMPLETED", "VOIDED", "PAYER_ACTION_REQUIRED", "UNKNOWN"}
-CAPTURE_STATES = {"COMPLETED", "PENDING", "DECLINED", "FAILED", "REFUNDED", "PARTIALLY_REFUNDED", "UNKNOWN"}
+# str + Enum preserves Python 3.10 compatibility. Emit .value at JSON boundaries.
+class ToolName(str, Enum):
+    GET_LOCAL_ORDER = "get_local_order"
+    GET_PAYPAL_ORDER = "get_paypal_order"
+    GET_APPLICATION_EVENTS = "get_application_events"
+
+
+class LocalOrderState(str, Enum):
+    AWAITING_APPROVAL = "AWAITING_APPROVAL"
+    BLOCKED = "BLOCKED"
+    UNKNOWN = "UNKNOWN"
+    PAID = "PAID"
+
+
+class ProviderOrderState(str, Enum):
+    CREATED = "CREATED"
+    APPROVED = "APPROVED"
+    COMPLETED = "COMPLETED"
+    VOIDED = "VOIDED"
+    PAYER_ACTION_REQUIRED = "PAYER_ACTION_REQUIRED"
+    UNKNOWN = "UNKNOWN"
+
+
+class CaptureState(str, Enum):
+    COMPLETED = "COMPLETED"
+    PENDING = "PENDING"
+    DECLINED = "DECLINED"
+    FAILED = "FAILED"
+    REFUNDED = "REFUNDED"
+    PARTIALLY_REFUNDED = "PARTIALLY_REFUNDED"
+    UNKNOWN = "UNKNOWN"
+
+
+# Keep the existing public constants available to current callers.
+TOOLS = tuple(tool.value for tool in ToolName)
+ORDER_STATES = frozenset(state.value for state in ProviderOrderState)
+CAPTURE_STATES = frozenset(state.value for state in CaptureState)
 
 
 def text(value):
@@ -51,8 +86,10 @@ class EvidenceSession:
 
     def call(self, tool, arguments):
         # Reject invalid requests before touching storage or the provider.
-        if tool not in TOOLS:
-            raise ValueError("Unsupported diagnostic tool")
+        try:
+            tool = ToolName(tool).value
+        except (ValueError, TypeError):
+            raise ValueError("Unsupported diagnostic tool") from None
         if not isinstance(arguments, dict) or set(arguments) != {"order_id"} or arguments["order_id"] != self.order_id:
             raise ValueError("Tool arguments must reference this session's local order")
         observation = {"evidence_id": uuid.uuid4().hex, "tool": tool}
@@ -71,15 +108,13 @@ class EvidenceSession:
         return deepcopy(observation)
 
     def _get_local_order(self, order):
-        state = order["status"]
-        if state not in {"AWAITING_APPROVAL", "BLOCKED", "UNKNOWN", "PAID"}:
-            raise ValueError("Unsupported state")
+        state = LocalOrderState(order["status"])
         capture_id = order["capture_id"]
         if capture_id is not None:
             text(capture_id)
         return {
             "order_id": self.order_id, "provider_order_id": text(order["provider_id"]),
-            "payment_state": "PAID" if state == "PAID" else "UNCONFIRMED",
+            "payment_state": "PAID" if state == LocalOrderState.PAID else "UNCONFIRMED",
             **money({"value": order["amount"], "currency_code": order["currency"]}),
             "capture_id": capture_id,
             "fulfillment_count": self.store.db.execute(
@@ -92,9 +127,9 @@ class EvidenceSession:
         # Preserve differing IDs and amounts as evidence; never silently replace
         # them with expected local values. Unsupported shapes become tool errors.
         remote_id = text(remote["id"])
-        status = remote["status"]
+        status = ProviderOrderState(remote["status"]).value
         units = remote["purchase_units"]
-        if status not in ORDER_STATES or not isinstance(units, list) or len(units) != 1:
+        if not isinstance(units, list) or len(units) != 1:
             raise ValueError("Unsupported provider state")
         unit = units[0]
         captures = unit.get("payments", {}).get("captures", [])
@@ -102,9 +137,8 @@ class EvidenceSession:
             raise ValueError("Invalid captures")
         normalized = []
         for item in captures:
-            if item["status"] not in CAPTURE_STATES:
-                raise ValueError("Unsupported capture state")
-            normalized.append({"capture_id": text(item["id"]), "status": item["status"], **money(item["amount"])})
+            capture_status = CaptureState(item["status"]).value
+            normalized.append({"capture_id": text(item["id"]), "status": capture_status, **money(item["amount"])})
         return {
             "provider_order_id": remote_id, "status": status,
             "purchase_unit": {"provider_order_id": remote_id, "custom_id": text(unit["custom_id"]), **money(unit["amount"])},
