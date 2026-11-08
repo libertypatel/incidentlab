@@ -1,8 +1,8 @@
-# Contributing Guidlines
+# Contributing Guidelines
 
 ## Branching
 
-- `main` is protected: **no direct commits or pushes.** All changes land via pull request.
+- Treat `main` as protected: **no direct commits or pushes.** All changes land via pull request.
 - Branch from `main` using this naming scheme:
 
   ```
@@ -67,9 +67,7 @@ This also makes the change reviewable step by step.
 
 ## Comments
 
-**One line per comment.** If the reasoning needs a paragraph, it belongs in the commit
-message or the PR description, which is where someone asking "why is this like this?"
-will run `git log`/`git blame` and find it. Long comment blocks in source bloats every file they sit in.
+**Keep comments concise.** Use short multiline comments when needed to explain safety constraints or non-obvious behavior
 
 - Comment **why**, not what. Code should be somewhat self-explanatory
 - Don't narrate history in a comment ("previously this did X"). That is what the commit
