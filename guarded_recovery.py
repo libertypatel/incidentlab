@@ -106,7 +106,10 @@ def _check_unit(order, remote):
     if remote.get('id') != order['provider_id'] or not isinstance(units, list) or len(units) != 1:
         raise GuardBlocked('Provider order identity is not established.')
     unit = units[0]
-    if unit.get('custom_id') != order['id'] or unit.get('amount') != {'value': order['amount'], 'currency_code': order['currency']}:
+    amount = unit.get('amount')
+    if (unit.get('custom_id') != order['id'] or not isinstance(amount, dict)
+            or amount.get('value') != order['amount']
+            or amount.get('currency_code') != order['currency']):
         raise GuardBlocked('Provider identity, amount, or currency does not match.')
     payments = unit.get('payments', {})
     if not isinstance(payments, dict) or payments.get('refunds'):
