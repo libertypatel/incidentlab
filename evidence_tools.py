@@ -146,8 +146,19 @@ class EvidenceSession:
         }
 
     def _get_application_events(self, order):
-        # Current events are not an authoritative dispatch journal. In particular,
-        # capture_started is written BEFORE the network call. Do not translate it
-        # into CAPTURE_DISPATCHED, or capture_blocked into retry permission.
-        # Do not expose raw kind/detail, injection names, sequence or timing.
-        return {"coverage": "PARTIAL", "events": []}
+        # Legacy logs are incomplete. Only a matching guarded journal may assert
+        # non-submission; a pre-network intent never establishes actual dispatch.
+        exists = self.store.db.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='capture_journal'").fetchone()
+        events = []
+        if exists:
+            journal = self.store.db.execute(
+                "SELECT * FROM capture_journal WHERE order_id=?", (self.order_id,)).fetchone()
+            started = self.store.db.execute(
+                "SELECT 1 FROM events WHERE order_id=? AND kind='capture_started' LIMIT 1",
+                (self.order_id,)).fetchone()
+            matches = journal and all(journal[key] == order[key] for key in ('provider_id', 'amount', 'currency'))
+            if matches and journal['state'] == 'UNSENT' and not started and order['status'] in {'AWAITING_APPROVAL', 'BLOCKED'}:
+                events.append({'event': 'CAPTURE_NOT_SENT', 'message': 'Application did not dispatch a capture request.'})
+        # This journal is not a complete historical application log.
+        return {"coverage": "PARTIAL", "events": events}
