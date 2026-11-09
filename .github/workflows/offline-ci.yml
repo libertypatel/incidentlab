@@ -1,0 +1,32 @@
+name: Offline CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, chore/offline-ci]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-tests:
+    name: Offline tests and contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PAYPAL_CLIENT_ID: ""
+      PAYPAL_CLIENT_SECRET: ""
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install validation dependency
+        run: python -m pip install jsonschema==4.26.0
+      - name: Run offline unit tests
+        run: python -m unittest discover -v
+      - name: Validate synthetic contract examples
+        run: python contracts/validate_examples.py
