@@ -1,5 +1,6 @@
 """Contract v1 coordinator; investigators receive only bounded diagnostic tools."""
 from copy import deepcopy
+from functools import cache
 import json
 from pathlib import Path
 import uuid
@@ -14,6 +15,7 @@ class RunUnavailable(Exception):
     """No complete run report is available; never implies recovery succeeded."""
 
 
+@cache
 def _validator(kind):
     schema = json.loads((Path(__file__).parent / 'contracts/incident-v1.schema.json').read_text())
     return Draft202012Validator({'$ref': '#/$defs/' + kind, '$defs': schema['$defs']},
