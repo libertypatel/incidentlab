@@ -110,7 +110,7 @@ python3 evaluation.py
 python3 evaluation.py --ai
 ```
 
-Current local validation: **74 tests and four contract examples pass**. Scripted
+Current local validation: **75 tests and four contract examples pass**. Scripted
 transport tests establish adapter behavior, not model quality. Offline HTTP checks
 exercise both interactive actions and independently verified final states.
 The local console and presentation view were reviewed in the Mac browser;
@@ -148,6 +148,15 @@ APPROVED/zero captures → capture with skipped local finalization → local UNK
 one completed capture, zero fulfillment → reconciliation → VERIFIED/PAID,
 one fulfillment, same capture identity/count.
 
+A later AI investigation of a separate sandbox lost-confirmation incident also
+completed reconciliation through a read-only provider gateway. Its retained
+[run report](sandbox-validation/ai-reconciliation-2026-11-10/run.json) contains
+the actual evidence IDs, proposal, execution and five independent verification
+checks. [Diagnostics](sandbox-validation/ai-reconciliation-2026-11-10/diagnostics.json)
+record four real model requests, source fingerprints and unchanged capture IDs.
+Earlier validation rejections are documented; this is a development validation,
+not an estimate of first-attempt success or production reliability.
+
 [SANDBOX_VALIDATION.md](SANDBOX_VALIDATION.md) records earlier manual validation.
 Buyer approval (`APPROVED`) alone never establishes a completed payment. No callback
 server is needed for the CLI; a localhost browser error is not payment evidence.
@@ -159,12 +168,15 @@ is a synthetic database record. Partial captures, refunds, production money,
 ambiguous order creation recovery, and crash-claim recovery are outside scope.
 Guarded coordination does not cover legacy `incidentlab.py` mutation commands;
 use the guarded entry points. Sandbox fault injection skips local finalization,
-not a real dropped webhook. Real-model investigation with fake payments is
-validated by the retained run. Combined AI-driven PayPal sandbox recovery remains
-unverified; the sandbox runs used a manual controller. The interactive page defaults
-to branching rules; `--ai` explicitly enables real model investigation on fake payments.
-The new AI console flow requires real-model browser validation; its authorization
-and execution paths have scripted tests.
+not a real dropped webhook. On November 10, a real-model sandbox investigation
+proposed reconciliation and restored local PAID state plus one synthetic fulfillment;
+all five checks passed and the original capture identity/count stayed unchanged.
+The reconciliation gateway exposed provider reads only. Capture for that incident
+was manually authorized beforehand. AI-driven sandbox capture is not established
+by this reconciliation result. See [SANDBOX_VALIDATION.md](SANDBOX_VALIDATION.md).
+The interactive page defaults to branching rules; `--ai` enables real model
+investigation with fake payments. Both AI browser cases completed and verified
+in the Mac recording; this does not establish broader browser coverage.
 
 AG Grid Community is an optional incident-table enhancement, not required by the
 local demo. We have not claimed sponsor-prize eligibility. Keep the no-network

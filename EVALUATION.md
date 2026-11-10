@@ -106,3 +106,14 @@ There is one recorded model run per case, no repeated-trial reliability estimate
 no independent blinding, and only two incident families. Broader claims require
 new cases and repeated evaluations. Manual PayPal sandbox validation is separate;
 this evaluation makes external AI requests and zero PayPal requests.
+
+
+## Later sandbox validation
+
+The local-order argument binding was tightened after the frozen evaluation and
+committed as `f176340`. The original `f9eaace` evaluation artifacts remain unchanged;
+its held-out score applies to that recorded version, not an unmeasured rerun of the
+new adapter. A later real-model PayPal sandbox reconciliation succeeded with an
+unchanged capture and five verification checks passing; see
+[SANDBOX_VALIDATION.md](SANDBOX_VALIDATION.md) for the development failures, source
+fingerprints, read-only gateway boundary and limitations.

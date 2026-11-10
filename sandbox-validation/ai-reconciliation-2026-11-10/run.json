@@ -1,0 +1,163 @@
+{
+  "contract_version": "1.0",
+  "run_id": "c68b609f-b158-44c5-8a6c-4bde36185be9",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "sandbox",
+    "incident_id": "28fa6303d77244acabf780b7169cfbd7",
+    "order_id": "8a6e33c2132f41a2bcd0c0282b0c7e84",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "4da265857f82492ba2a6aa8b64b5a9e3",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "8a6e33c2132f41a2bcd0c0282b0c7e84",
+          "provider_order_id": "90E02008F4569751S",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T05:26:48.584174Z"
+      },
+      {
+        "evidence_id": "1465a3f41e65432bb776f142367575f3",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "90E02008F4569751S",
+          "status": "COMPLETED",
+          "purchase_unit": {
+            "provider_order_id": "90E02008F4569751S",
+            "custom_id": "8a6e33c2132f41a2bcd0c0282b0c7e84",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": [
+            {
+              "capture_id": "24A46769RS889110U",
+              "status": "COMPLETED",
+              "currency": "USD",
+              "amount": "1.00"
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T05:26:50.523911Z"
+      },
+      {
+        "evidence_id": "624dd85c0a824d0c8d26abc31a554a20",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": []
+        },
+        "observed_at": "2026-11-10T05:26:51.486444Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "28fa6303d77244acabf780b7169cfbd7",
+    "action": "reconcile_order",
+    "order_id": "8a6e33c2132f41a2bcd0c0282b0c7e84",
+    "summary": "Local order 8a6e33c2132f41a2bcd0c0282b0c7e84 has payment_state UNCONFIRMED with no capture_id, but provider order 90E02008F4569751S is COMPLETED with exactly one COMPLETED capture (24A46769RS889110U) matching amount 1.00 and currency USD. Identity, amount, and currency all match between local and provider. Reconciliation repairs the missing local confirmation against the durable provider capture evidence.",
+    "evidence_ids": [
+      "4da265857f82492ba2a6aa8b64b5a9e3",
+      "1465a3f41e65432bb776f142367575f3",
+      "624dd85c0a824d0c8d26abc31a554a20"
+    ]
+  },
+  "execution": {
+    "decision_id": "28fa6303d77244acabf780b7169cfbd7",
+    "action": "reconcile_order",
+    "status": "SUCCEEDED",
+    "message": "Recovery executed; independent verification is required."
+  },
+  "verification": {
+    "status": "VERIFIED",
+    "provider_order_id": "90E02008F4569751S",
+    "completed_capture_id": "24A46769RS889110U",
+    "local_payment_state": "PAID",
+    "fulfillment_count": 1,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "PASS"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "PASS"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "4da265857f82492ba2a6aa8b64b5a9e3"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "1465a3f41e65432bb776f142367575f3"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "624dd85c0a824d0c8d26abc31a554a20"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Local order 8a6e33c2132f41a2bcd0c0282b0c7e84 has payment_state UNCONFIRMED with no capture_id, but provider order 90E02008F4569751S is COMPLETED with exactly one COMPLETED capture (24A46769RS889110U) matching amount 1.00 and currency USD. Identity, amount, and currency all match between local and provider. Reconciliation repairs the missing local confirmation against the durable provider capture evidence.",
+      "evidence_ids": [
+        "4da265857f82492ba2a6aa8b64b5a9e3",
+        "1465a3f41e65432bb776f142367575f3",
+        "624dd85c0a824d0c8d26abc31a554a20"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "SUCCEEDED: Recovery executed; independent verification is required.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}
