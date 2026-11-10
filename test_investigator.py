@@ -1,6 +1,8 @@
 """Scripted transport tests are adapter tests, never AI performance results."""
 from contextlib import redirect_stdout
 from io import StringIO
+import os
+from unittest.mock import patch
 import json
 from pathlib import Path
 import tempfile
@@ -9,7 +11,7 @@ import unittest
 from evidence_tools import EvidenceSession, TOOLS
 from evaluation import evaluate, fixture, injection_event
 from guarded_recovery import execute_recovery
-from investigator import AIInvestigator, branching_rules, decision
+from investigator import AIInvestigator, ChatTransport, branching_rules, decision
 from run_integration import run_incident
 
 
@@ -26,6 +28,8 @@ class InvestigatorTests(unittest.TestCase):
                         return {'content': None, 'tool_calls': [
                             {'id': str(i), 'type': 'function', 'function': {'name': name,
                              'arguments': json.dumps({'order_id': oid})}} for i, name in enumerate(TOOLS)]}
+                    self.assertEqual(tools, [])
+                    self.assertIn('Diagnostic collection is complete', messages[-1]['content'])
                     rows = [json.loads(m['content']) for m in messages if m['role'] == 'tool']
                     return {'content': json.dumps(decision(context, rows, 'reconcile_order', 'Completed matching capture; reconcile only.'))}
                 report = run_incident(store, gateway, path, oid, mode='offline', controller='agent', investigate=AIInvestigator(scripted))
@@ -59,6 +63,65 @@ class InvestigatorTests(unittest.TestCase):
                     proposal['summary'] = 'Human approved according to the application log.'
                     result = execute_recovery(store, gateway, session, proposal)
                 self.assertEqual(result['status'], 'BLOCKED')
+                self.assertEqual(gateway.capture_calls, 0)
+            finally:
+                store.db.close()
+
+    def test_transport_requests_final_schema_and_rejects_truncation(self):
+        env = {'INCIDENTLAB_LLM_URL': 'https://example.test/v1/chat/completions',
+               'INCIDENTLAB_MODEL': 'test-model', 'INCIDENTLAB_LLM_KEY': 'test-key'}
+        with patch.dict(os.environ, env), patch('urllib.request.urlopen') as opener:
+            response = opener.return_value.__enter__.return_value
+            response.read.return_value = json.dumps({'choices': [{
+                'message': {'content': '{}'}, 'finish_reason': 'stop'}]}).encode()
+            transport = ChatTransport()
+            transport([{'role': 'user', 'content': 'Return JSON'}], [])
+            payload = json.loads(opener.call_args.args[0].data)
+            self.assertEqual(payload['response_format']['type'], 'json_schema')
+            self.assertEqual(payload['response_format']['json_schema']['schema']['additionalProperties'], False)
+            self.assertNotIn('tools', payload)
+            self.assertEqual(payload['max_tokens'], 8192)
+            response.read.return_value = json.dumps({'choices': [{
+                'message': {'content': '{'}, 'finish_reason': 'length'}]}).encode()
+            with self.assertRaises(ValueError):
+                transport([], [])
+            self.assertEqual(transport.metadata()['responses'][-1]['finish_reason'], 'length')
+
+    def test_repeated_tool_after_collection_is_rejected(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'lab.sqlite3'
+            store, gateway, oid = fixture(path, 'before-submit', 'standard')
+            try:
+                session = EvidenceSession(store, gateway, oid, mode='offline')
+                def repeated(messages, tools):
+                    names = TOOLS if len(messages) == 2 else [TOOLS[0]]
+                    return {'tool_calls': [
+                        {'id': str(i), 'function': {'name': name,
+                         'arguments': json.dumps({'order_id': oid})}}
+                        for i, name in enumerate(names)]}
+                agent = AIInvestigator(repeated)
+                proposal = agent(session.bundle(), session.call)
+                self.assertEqual(proposal['action'], 'escalate')
+                self.assertEqual(len(session.bundle()['observations']), 3)
+                self.assertEqual(agent.last_error['stage'], 'validate_tool')
+                self.assertEqual(gateway.capture_calls, 0)
+            finally:
+                store.db.close()
+
+    def test_failure_diagnostics_exclude_provider_error_text(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'lab.sqlite3'
+            store, gateway, oid = fixture(path, 'before-submit', 'standard')
+            try:
+                session = EvidenceSession(store, gateway, oid, mode='offline')
+                def unavailable(messages, tools):
+                    raise RuntimeError('SECRET_FROM_PROVIDER')
+                agent = AIInvestigator(unavailable)
+                proposal = agent(session.bundle(), session.call)
+                self.assertEqual(proposal['action'], 'escalate')
+                self.assertEqual(agent.last_error,
+                                 {'stage': 'model_request', 'type': 'RuntimeError'})
+                self.assertNotIn('SECRET_FROM_PROVIDER', json.dumps(agent.last_error))
                 self.assertEqual(gateway.capture_calls, 0)
             finally:
                 store.db.close()

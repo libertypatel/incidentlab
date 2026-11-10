@@ -159,6 +159,6 @@ class EvidenceSession:
                 (self.order_id,)).fetchone()
             matches = journal and all(journal[key] == order[key] for key in ('provider_id', 'amount', 'currency'))
             if matches and journal['state'] == 'UNSENT' and not started and order['status'] in {'AWAITING_APPROVAL', 'BLOCKED'}:
-                events.append({'event': 'CAPTURE_NOT_SENT', 'message': 'Application did not dispatch a capture request.'})
+                events.append({'event': 'CAPTURE_NOT_SENT', 'message': 'Matching durable capture journal is UNSENT with no capture_started record.'})
         # This journal is not a complete historical application log.
         return {"coverage": "PARTIAL", "events": events}

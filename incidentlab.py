@@ -212,7 +212,8 @@ def load_env():
             raw = raw.strip()
             if raw and not raw.startswith("#") and "=" in raw:
                 key, value = raw.split("=", 1)
-                if key in {"PAYPAL_CLIENT_ID", "PAYPAL_CLIENT_SECRET"}:
+                if key in {"PAYPAL_CLIENT_ID", "PAYPAL_CLIENT_SECRET",
+                           "INCIDENTLAB_LLM_URL", "INCIDENTLAB_MODEL", "INCIDENTLAB_LLM_KEY"}:
                     os.environ.setdefault(key, value.strip().strip("\"'"))
 
 

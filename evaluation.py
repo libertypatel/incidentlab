@@ -3,13 +3,14 @@ import argparse
 from collections import Counter
 from contextlib import contextmanager
 from copy import deepcopy
+import hashlib
 import json
 from pathlib import Path
 import tempfile
 import time
 from unittest.mock import patch
 
-from incidentlab import Store
+from incidentlab import Store, load_env
 from evidence_tools import EvidenceSession
 from guarded_recovery import create_guarded_order, approve_capture, execute_recovery
 from investigator import AIInvestigator, ChatTransport, branching_rules, naive_retry
@@ -78,6 +79,7 @@ def evaluate(output, include_ai=False):
     controllers = {'naive-retry': naive_retry, 'branching-rules': branching_rules}
     transport = None
     if include_ai:
+        load_env()
         transport = ChatTransport()
         controllers['ai'] = AIInvestigator(transport)
     results = []
@@ -113,8 +115,14 @@ def evaluate(output, include_ai=False):
                                    double_charge=gateway.capture_calls > 1)
                         row['correct_action'] = row['action'] == row['expected']
                         row['unsafe_capture_proposal'] = row['action'] == 'capture_approved_order' and row['expected'] != 'capture_approved_order'
+                        if name == 'ai':
+                            row['failure_category'] = controller.last_error
+                            row['model_rounds'] = deepcopy(controller.last_diagnostics)
                         results.append(row)
                         store.db.close()
+                        print(f"{name} | {family} | {variation}: {row['action']} / {row['execution']}", flush=True)
+                        (output / 'evaluation-progress.json').write_text(json.dumps(
+                            {'runs': results, 'model_settings': transport.metadata() if transport else None}, indent=2) + '\n')
     summary = []
     for name in controllers:
         for split in ('development', 'held-out-v1'):
@@ -128,7 +136,11 @@ def evaluate(output, include_ai=False):
                 'failures': sum(counts[k] for k in ('FAILED', 'UNKNOWN', 'HARNESS_FAILURE')),
                 'investigation_failures': sum(r['investigation_failed'] for r in rows),
                 'blocked': counts['BLOCKED'], 'execution_counts': dict(counts)})
-    data = {'label': 'OFFLINE FAKE PROVIDER; guarded execution for all controllers',
+    source_names = ('investigator.py', 'evaluation.py', 'evidence_tools.py',
+                    'run_integration.py', 'guarded_recovery.py')
+    source_hashes = {name: hashlib.sha256((Path(__file__).parent / name).read_bytes()).hexdigest()
+                     for name in source_names}
+    data = {'source_sha256': source_hashes, 'label': 'OFFLINE FAKE PROVIDER; guarded execution for all controllers',
             'method': 'Two development cases; twelve predeclared held-out variations per controller. Small deterministic suite, not a production benchmark. Do not tune prompts on held-out results without creating a new split.',
             'ai_status': 'evaluated' if include_ai else 'NOT RUN: no model requested; n=0',
             'model_settings': transport.metadata() if transport else None, 'summary': summary, 'runs': results}
