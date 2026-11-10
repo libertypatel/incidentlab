@@ -1,0 +1,161 @@
+{
+  "contract_version": "1.0",
+  "run_id": "59f9f3a2-6c45-4416-974b-fccbd341e91e",
+  "controller": "rules",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "91979e1709d94778be176507001ec46d",
+    "order_id": "906958440bfd4361bf7b96cbb3d5df0a",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "df13376e73ac47c995e268e18b15b048",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "906958440bfd4361bf7b96cbb3d5df0a",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:39:47.473678Z"
+      },
+      {
+        "evidence_id": "548ab65b57da4c43a70c924fd12335dc",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "APPROVED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "906958440bfd4361bf7b96cbb3d5df0a",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": []
+        },
+        "observed_at": "2026-11-10T04:39:47.474170Z"
+      },
+      {
+        "evidence_id": "157b6044744646879233745d0710a86f",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": [
+            {
+              "event": "CAPTURE_NOT_SENT",
+              "message": "Matching durable capture journal is UNSENT with no capture_started record."
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T04:39:47.474516Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "91979e1709d94778be176507001ec46d",
+    "order_id": "906958440bfd4361bf7b96cbb3d5df0a",
+    "action": "capture_approved_order",
+    "summary": "Naive baseline: retry capture for every checkout error.",
+    "evidence_ids": [
+      "df13376e73ac47c995e268e18b15b048",
+      "548ab65b57da4c43a70c924fd12335dc",
+      "157b6044744646879233745d0710a86f"
+    ]
+  },
+  "execution": {
+    "decision_id": "91979e1709d94778be176507001ec46d",
+    "action": "capture_approved_order",
+    "status": "SUCCEEDED",
+    "message": "Recovery executed; independent verification is required."
+  },
+  "verification": {
+    "status": "VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": "CAP-SANDBOX-FAKE-1",
+    "local_payment_state": "PAID",
+    "fulfillment_count": 1,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "PASS"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "PASS"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "df13376e73ac47c995e268e18b15b048"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "548ab65b57da4c43a70c924fd12335dc"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "157b6044744646879233745d0710a86f"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Naive baseline: retry capture for every checkout error.",
+      "evidence_ids": [
+        "df13376e73ac47c995e268e18b15b048",
+        "548ab65b57da4c43a70c924fd12335dc",
+        "157b6044744646879233745d0710a86f"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "SUCCEEDED: Recovery executed; independent verification is required.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

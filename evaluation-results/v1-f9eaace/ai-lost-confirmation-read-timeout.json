@@ -1,0 +1,149 @@
+{
+  "contract_version": "1.0",
+  "run_id": "049874e2-36ff-4e92-a14b-09340af2c85c",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "7b5ade2e0fa24e59981fb56fd384f789",
+    "order_id": "d1dddfe133ae4c3ab08a5441a2e34ee5",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "2017a262dc6b4a9f8eeec9d2d9d0bcb8",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "d1dddfe133ae4c3ab08a5441a2e34ee5",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:40:58.141282Z"
+      },
+      {
+        "evidence_id": "e46c317756914bd5a5a653a32e063832",
+        "tool": "get_paypal_order",
+        "status": "ERROR",
+        "error": {
+          "code": "TIMEOUT",
+          "message": "Diagnostic source timed out; payment outcome is not established."
+        },
+        "observed_at": "2026-11-10T04:40:58.141518Z"
+      },
+      {
+        "evidence_id": "e44c792de005417a96b8d69552889cb6",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": []
+        },
+        "observed_at": "2026-11-10T04:40:58.141785Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "7b5ade2e0fa24e59981fb56fd384f789",
+    "action": "escalate",
+    "order_id": "d1dddfe133ae4c3ab08a5441a2e34ee5",
+    "summary": "Provider order identity, amount, and currency cannot be verified due to PayPal diagnostic timeout error. Local order payment_state is UNCONFIRMED with no capture_id. Application events have PARTIAL coverage with no relevant events. Insufficient evidence to support reconcile_order or capture_approved_order.",
+    "evidence_ids": [
+      "2017a262dc6b4a9f8eeec9d2d9d0bcb8",
+      "e46c317756914bd5a5a653a32e063832",
+      "e44c792de005417a96b8d69552889cb6"
+    ]
+  },
+  "execution": {
+    "decision_id": "7b5ade2e0fa24e59981fb56fd384f789",
+    "action": "escalate",
+    "status": "NOT_EXECUTED",
+    "message": "Escalated for operator investigation; no recovery performed."
+  },
+  "verification": {
+    "status": "INCONCLUSIVE",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "UNKNOWN"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "UNKNOWN"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "UNKNOWN"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "2017a262dc6b4a9f8eeec9d2d9d0bcb8"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: ERROR",
+      "evidence_ids": [
+        "e46c317756914bd5a5a653a32e063832"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "e44c792de005417a96b8d69552889cb6"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Provider order identity, amount, and currency cannot be verified due to PayPal diagnostic timeout error. Local order payment_state is UNCONFIRMED with no capture_id. Application events have PARTIAL coverage with no relevant events. Insufficient evidence to support reconcile_order or capture_approved_order.",
+      "evidence_ids": [
+        "2017a262dc6b4a9f8eeec9d2d9d0bcb8",
+        "e46c317756914bd5a5a653a32e063832",
+        "e44c792de005417a96b8d69552889cb6"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "NOT_EXECUTED: Escalated for operator investigation; no recovery performed.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "INCONCLUSIVE",
+      "evidence_ids": []
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "contract_version": "1.0",
+  "run_id": "6d0688c7-6592-4b7a-aa14-0aad2279c01c",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "40cc2e33454f4970b36f66863e84276b",
+    "order_id": "5c311fd562cc4f2bbc25aeb924a0f5f4",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "2b779cbdead34727b103094cad79aa53",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "5c311fd562cc4f2bbc25aeb924a0f5f4",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:40:20.144210Z"
+      },
+      {
+        "evidence_id": "28ffd25edd78457583491ea845fc571e",
+        "tool": "get_paypal_order",
+        "status": "ERROR",
+        "error": {
+          "code": "INVALID_RESPONSE",
+          "message": "Diagnostic source returned unsupported or incomplete evidence."
+        },
+        "observed_at": "2026-11-10T04:40:20.850658Z"
+      },
+      {
+        "evidence_id": "962d3ba9f09a4d4a992e293756dc15a9",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": [
+            {
+              "event": "CAPTURE_NOT_SENT",
+              "message": "Matching durable capture journal is UNSENT with no capture_started record."
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T04:40:21.764906Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "40cc2e33454f4970b36f66863e84276b",
+    "action": "escalate",
+    "order_id": "5c311fd562cc4f2bbc25aeb924a0f5f4",
+    "summary": "PayPal diagnostic tool returned ERROR with unsupported/incomplete evidence, preventing verification of provider order identity/amount/currency against local order. Local order shows payment_state UNCONFIRMED with no capture_id. Application events contain CAPTURE_NOT_SENT but with PARTIAL coverage. Insufficient evidence to apply any recovery policy.",
+    "evidence_ids": [
+      "2b779cbdead34727b103094cad79aa53",
+      "28ffd25edd78457583491ea845fc571e",
+      "962d3ba9f09a4d4a992e293756dc15a9"
+    ]
+  },
+  "execution": {
+    "decision_id": "40cc2e33454f4970b36f66863e84276b",
+    "action": "escalate",
+    "status": "NOT_EXECUTED",
+    "message": "Escalated for operator investigation; no recovery performed."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "FAIL"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "FAIL"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "2b779cbdead34727b103094cad79aa53"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: ERROR",
+      "evidence_ids": [
+        "28ffd25edd78457583491ea845fc571e"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "962d3ba9f09a4d4a992e293756dc15a9"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "PayPal diagnostic tool returned ERROR with unsupported/incomplete evidence, preventing verification of provider order identity/amount/currency against local order. Local order shows payment_state UNCONFIRMED with no capture_id. Application events contain CAPTURE_NOT_SENT but with PARTIAL coverage. Insufficient evidence to apply any recovery policy.",
+      "evidence_ids": [
+        "2b779cbdead34727b103094cad79aa53",
+        "28ffd25edd78457583491ea845fc571e",
+        "962d3ba9f09a4d4a992e293756dc15a9"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "NOT_EXECUTED: Escalated for operator investigation; no recovery performed.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

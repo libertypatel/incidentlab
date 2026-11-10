@@ -1,0 +1,161 @@
+{
+  "contract_version": "1.0",
+  "run_id": "5e43b11c-6e73-4d26-a2fa-5916c4cbd6ce",
+  "controller": "rules",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "25070ee2e22a40b8ad80ebae1fc9059d",
+    "order_id": "3491d39d80f34b24919ab1e6f98d39c0",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "91dda4e3947544b1bf962c78aa0b125d",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "3491d39d80f34b24919ab1e6f98d39c0",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:39:47.967957Z"
+      },
+      {
+        "evidence_id": "60223d4e3fbc4ad99e0467336694d345",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "APPROVED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "3491d39d80f34b24919ab1e6f98d39c0",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": []
+        },
+        "observed_at": "2026-11-10T04:39:47.968068Z"
+      },
+      {
+        "evidence_id": "c881e2e8a02b408eac14396da31e1dd1",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": [
+            {
+              "event": "CAPTURE_NOT_SENT",
+              "message": "Matching durable capture journal is UNSENT with no capture_started record."
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T04:39:47.968256Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "25070ee2e22a40b8ad80ebae1fc9059d",
+    "order_id": "3491d39d80f34b24919ab1e6f98d39c0",
+    "action": "capture_approved_order",
+    "summary": "Buyer approved and durable journal establishes non-submission; request operator approval.",
+    "evidence_ids": [
+      "91dda4e3947544b1bf962c78aa0b125d",
+      "60223d4e3fbc4ad99e0467336694d345",
+      "c881e2e8a02b408eac14396da31e1dd1"
+    ]
+  },
+  "execution": {
+    "decision_id": "25070ee2e22a40b8ad80ebae1fc9059d",
+    "action": "capture_approved_order",
+    "status": "SUCCEEDED",
+    "message": "Recovery executed; independent verification is required."
+  },
+  "verification": {
+    "status": "VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": "CAP-SANDBOX-FAKE-1",
+    "local_payment_state": "PAID",
+    "fulfillment_count": 1,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "PASS"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "PASS"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "91dda4e3947544b1bf962c78aa0b125d"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "60223d4e3fbc4ad99e0467336694d345"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "c881e2e8a02b408eac14396da31e1dd1"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Buyer approved and durable journal establishes non-submission; request operator approval.",
+      "evidence_ids": [
+        "91dda4e3947544b1bf962c78aa0b125d",
+        "60223d4e3fbc4ad99e0467336694d345",
+        "c881e2e8a02b408eac14396da31e1dd1"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "SUCCEEDED: Recovery executed; independent verification is required.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

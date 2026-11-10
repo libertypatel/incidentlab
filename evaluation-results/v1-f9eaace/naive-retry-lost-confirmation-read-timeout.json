@@ -1,0 +1,149 @@
+{
+  "contract_version": "1.0",
+  "run_id": "ab40b6a6-3a7d-4b5c-b1d9-eaa3f6c19432",
+  "controller": "rules",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "0da0ade0279841d6a800c97479776815",
+    "order_id": "cbc538ae7d0b4379bd695b132f567ef1",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "2eb0b3a4153048eb97c47949da035ae6",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "cbc538ae7d0b4379bd695b132f567ef1",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:39:47.740181Z"
+      },
+      {
+        "evidence_id": "3d090bf0b25e4bf882556118f9e46d93",
+        "tool": "get_paypal_order",
+        "status": "ERROR",
+        "error": {
+          "code": "TIMEOUT",
+          "message": "Diagnostic source timed out; payment outcome is not established."
+        },
+        "observed_at": "2026-11-10T04:39:47.740306Z"
+      },
+      {
+        "evidence_id": "d0fb6a9b06e24dc597fd57731fb393d9",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": []
+        },
+        "observed_at": "2026-11-10T04:39:47.740477Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "0da0ade0279841d6a800c97479776815",
+    "order_id": "cbc538ae7d0b4379bd695b132f567ef1",
+    "action": "capture_approved_order",
+    "summary": "Naive baseline: retry capture for every checkout error.",
+    "evidence_ids": [
+      "2eb0b3a4153048eb97c47949da035ae6",
+      "3d090bf0b25e4bf882556118f9e46d93",
+      "d0fb6a9b06e24dc597fd57731fb393d9"
+    ]
+  },
+  "execution": {
+    "decision_id": "0da0ade0279841d6a800c97479776815",
+    "action": "capture_approved_order",
+    "status": "FAILED",
+    "message": "Recovery could not be confirmed; investigate before retrying."
+  },
+  "verification": {
+    "status": "INCONCLUSIVE",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "UNKNOWN"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "UNKNOWN"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "UNKNOWN"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "2eb0b3a4153048eb97c47949da035ae6"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: ERROR",
+      "evidence_ids": [
+        "3d090bf0b25e4bf882556118f9e46d93"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "d0fb6a9b06e24dc597fd57731fb393d9"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Naive baseline: retry capture for every checkout error.",
+      "evidence_ids": [
+        "2eb0b3a4153048eb97c47949da035ae6",
+        "3d090bf0b25e4bf882556118f9e46d93",
+        "d0fb6a9b06e24dc597fd57731fb393d9"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "FAILED: Recovery could not be confirmed; investigate before retrying.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "INCONCLUSIVE",
+      "evidence_ids": []
+    }
+  ]
+}

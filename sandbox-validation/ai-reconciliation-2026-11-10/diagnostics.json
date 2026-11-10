@@ -1,0 +1,157 @@
+{
+  "failure_category": null,
+  "rounds": [
+    {
+      "round": 1,
+      "content_chars": 0,
+      "starts_with_json": false,
+      "tools": [
+        "get_local_order"
+      ]
+    },
+    {
+      "round": 2,
+      "content_chars": 0,
+      "starts_with_json": false,
+      "tools": [
+        "get_paypal_order"
+      ]
+    },
+    {
+      "round": 3,
+      "content_chars": 0,
+      "starts_with_json": false,
+      "tools": [
+        "get_application_events"
+      ]
+    },
+    {
+      "round": 4,
+      "content_chars": 677,
+      "starts_with_json": true,
+      "tools": []
+    }
+  ],
+  "tool_attempts": [
+    {
+      "tool": "get_local_order",
+      "local_order_matches": true,
+      "status": "OK"
+    },
+    {
+      "tool": "get_paypal_order",
+      "local_order_matches": true,
+      "status": "OK"
+    },
+    {
+      "tool": "get_application_events",
+      "local_order_matches": true,
+      "status": "OK"
+    }
+  ],
+  "model_settings": {
+    "model": "nvidia/Nemotron-3_5-Lightning",
+    "endpoint_host": "api.tokenfactory.nebius.com",
+    "temperature": 0,
+    "max_tokens": 1400,
+    "final_max_tokens": 8192,
+    "timeout_seconds": 60,
+    "max_rounds": 5,
+    "max_tool_calls": 6,
+    "calls": 4,
+    "usage": [
+      {
+        "completion_tokens": 56,
+        "prompt_tokens": 1446,
+        "total_tokens": 1502,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1446
+      },
+      {
+        "completion_tokens": 58,
+        "prompt_tokens": 1709,
+        "total_tokens": 1767,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1709
+      },
+      {
+        "completion_tokens": 56,
+        "prompt_tokens": 2043,
+        "total_tokens": 2099,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2043
+      },
+      {
+        "completion_tokens": 1460,
+        "prompt_tokens": 1634,
+        "total_tokens": 3094,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 1136,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1634
+      }
+    ],
+    "returned_models": [
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning"
+    ],
+    "responses": [
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "stop",
+        "phase": "proposal"
+      }
+    ],
+    "final_output_format": "json_schema"
+  },
+  "capture_ids_before": [
+    "24A46769RS889110U"
+  ],
+  "capture_ids_after": [
+    "24A46769RS889110U"
+  ],
+  "source_sha256": {
+    "investigator.py": "f84a726cd31023a0f729d80cd61db4dfc6314dff0e198d1577549d9b8acf7cb6",
+    "run_integration.py": "a521541b5e8bdb80366b41e56aef86e87a5c308055486efaaa2e581957e3cd91",
+    "evidence_tools.py": "b15a6995d46cd633ffba0912a69ae0be903f121c3c07506d966520644a7b4a7a"
+  }
+}

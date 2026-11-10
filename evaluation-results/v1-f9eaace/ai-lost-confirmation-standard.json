@@ -1,0 +1,163 @@
+{
+  "contract_version": "1.0",
+  "run_id": "116c43b2-7ea7-4d6e-a244-b486f18926bb",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "94346ad9f00342cbb75b8ab95e2049d0",
+    "order_id": "c812908fa70a4ea2ba41a693cdf5a711",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "89db126199474ee5a33e249bb3680a37",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "c812908fa70a4ea2ba41a693cdf5a711",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:40:48.456038Z"
+      },
+      {
+        "evidence_id": "177213c76f8c484bb572893071f5fd18",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "COMPLETED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "c812908fa70a4ea2ba41a693cdf5a711",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": [
+            {
+              "capture_id": "CAP-SANDBOX-FAKE-1",
+              "status": "COMPLETED",
+              "currency": "USD",
+              "amount": "1.00"
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T04:40:48.456487Z"
+      },
+      {
+        "evidence_id": "b6b36a548b43401eb17382f539f777da",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": []
+        },
+        "observed_at": "2026-11-10T04:40:48.456951Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "94346ad9f00342cbb75b8ab95e2049d0",
+    "action": "reconcile_order",
+    "order_id": "c812908fa70a4ea2ba41a693cdf5a711",
+    "summary": "Provider order SANDBOX-FAKE-1 COMPLETED with single COMPLETED capture CAP-SANDBOX-FAKE-1 (amount 1.00 USD, currency USD) matches local order identity (custom_id c812908fa70a4ea2ba41a693cdf5a711, amount 1.00 USD). Local payment_state UNCONFIRMED and missing capture_id are missing confirmation that reconciliation repairs; provider capture evidence sufficient despite partial application log coverage.",
+    "evidence_ids": [
+      "89db126199474ee5a33e249bb3680a37",
+      "177213c76f8c484bb572893071f5fd18",
+      "b6b36a548b43401eb17382f539f777da"
+    ]
+  },
+  "execution": {
+    "decision_id": "94346ad9f00342cbb75b8ab95e2049d0",
+    "action": "reconcile_order",
+    "status": "SUCCEEDED",
+    "message": "Recovery executed; independent verification is required."
+  },
+  "verification": {
+    "status": "VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": "CAP-SANDBOX-FAKE-1",
+    "local_payment_state": "PAID",
+    "fulfillment_count": 1,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "PASS"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "PASS"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "89db126199474ee5a33e249bb3680a37"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "177213c76f8c484bb572893071f5fd18"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "b6b36a548b43401eb17382f539f777da"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Provider order SANDBOX-FAKE-1 COMPLETED with single COMPLETED capture CAP-SANDBOX-FAKE-1 (amount 1.00 USD, currency USD) matches local order identity (custom_id c812908fa70a4ea2ba41a693cdf5a711, amount 1.00 USD). Local payment_state UNCONFIRMED and missing capture_id are missing confirmation that reconciliation repairs; provider capture evidence sufficient despite partial application log coverage.",
+      "evidence_ids": [
+        "89db126199474ee5a33e249bb3680a37",
+        "177213c76f8c484bb572893071f5fd18",
+        "b6b36a548b43401eb17382f539f777da"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "SUCCEEDED: Recovery executed; independent verification is required.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

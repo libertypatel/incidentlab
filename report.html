@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IncidentLab — Recovery workspace</title>
+<style>
+:root{color-scheme:dark;--bg:#0c1115;--panel:#121a20;--line:#263139;--ink:#edf3f1;--muted:#a6b4b8;--teal:#9ee8ce;--amber:#e7c184;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}button{font:inherit;cursor:pointer}button:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--teal);outline-offset:5px}button:disabled{cursor:default}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;letter-spacing:.04em}.muted{color:var(--muted)}
+.sidebar{position:fixed;inset:0 auto 0 0;width:214px;border-right:1px solid var(--line);background:#0e151a;padding:30px 21px;display:flex;flex-direction:column}.brand{display:flex;align-items:center;gap:11px;font-size:21px;font-weight:680;letter-spacing:-.7px}.mark{width:28px;height:29px;display:grid;grid-template-columns:repeat(3,5px);gap:4px;align-items:center}.mark i{background:var(--teal);border-radius:2px;height:15px}.mark i:nth-child(2){height:28px}.mark i:nth-child(3){height:21px}.workspace-label{font-size:10px;letter-spacing:1.8px;color:#75868f;margin:49px 12px 14px}.nav-current{background:#1c2c2b;border:1px solid #2c4540;color:#c6f5e4;padding:12px;border-radius:7px;font-size:13px;display:flex;align-items:center;gap:10px}.nav-current span:first-child{font-size:18px}.sidebar-bottom{margin-top:auto;border-top:1px solid var(--line);padding:21px 6px 0;color:var(--muted);font-size:11px;line-height:1.8}.status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--teal);margin-right:7px}.shell{margin-left:214px}.topbar{height:74px;border-bottom:1px solid var(--line);padding:0 42px;display:flex;align-items:center;justify-content:space-between;gap:16px}.breadcrumb{font-size:12px;color:#8b9da4}.breadcrumb b{font-weight:500;color:#d2dedf}.slash{margin:0 12px;color:#53636b}.top-actions{display:flex;align-items:center;gap:18px}.pill{border:1px solid #35423d;border-radius:5px;color:#c8d7cb;padding:6px 9px;font-size:10px;letter-spacing:.7px;text-transform:uppercase}.quiet-button{background:transparent;border:1px solid var(--line);border-radius:6px;color:#c8d3d6;padding:9px 12px;font-size:11px}.quiet-button:hover{border-color:#78958b}.content{max-width:1530px;padding:37px 42px 22px;margin:auto}.eyebrow{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--teal);display:flex;align-items:center;gap:9px}.eyebrow:before{content:'';width:18px;height:1px;background:var(--teal)}.intro{display:flex;justify-content:space-between;align-items:flex-end;gap:25px;margin-bottom:28px}h1{font-size:clamp(30px,3vw,46px);line-height:1.14;letter-spacing:-1.8px;font-weight:550;margin:13px 0 11px}h1 em{font-style:normal;color:var(--teal)}.intro p{font-size:13px;color:var(--muted);line-height:1.7;margin:0;max-width:560px}.intro-note{font-size:11px;line-height:1.7;color:#96a6ad;text-align:right;padding-bottom:3px}.environment{border:1px solid #4a3d28;background:#211e18;color:#e3c898;border-radius:6px;padding:10px 13px;font-size:11px;line-height:1.6;display:flex;align-items:center;gap:10px}.environment b{font-size:10px;letter-spacing:.8px;white-space:nowrap}.environment span:last-child{color:#c1b59f}.metrics{display:grid;grid-template-columns:1fr 1fr 1fr;margin:23px 0 28px;border:1px solid var(--line);border-radius:8px;background:#10181d}.metric{padding:18px 23px;border-right:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.metric:last-child{border:0}.metric-label{font-size:11px;color:var(--muted)}.metric-value{font-size:25px;letter-spacing:-1px}.metric-value.small{font-size:14px;letter-spacing:0}.metric-value .denominator{font-size:15px;color:#71848c;margin-left:4px}.section-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.section-heading h2{font-size:14px;font-weight:550;margin:0}.section-heading span{font-size:10px;color:#8c9ea6}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.incident{background:var(--panel);border:1px solid #2b363d;border-radius:10px;overflow:hidden;transition:border-color .25s}.incident.verified{border-color:#3f7565}.card-head{padding:20px 23px 17px;border-bottom:1px solid var(--line)}.card-top{display:flex;justify-content:space-between;gap:10px;align-items:center}.incident-id{color:#82969e}.badge{font-size:10px;letter-spacing:.25px;border-radius:4px;padding:5px 7px;display:inline-flex;align-items:center;gap:6px;border:1px solid #4c4232;background:#2b251c;color:#edcb93}.badge.success{border-color:#365f51;background:#19382e;color:#a8ebcc}.badge.neutral{background:#1a252e;color:#bbcbd5;border-color:#354551}.card-head h3{font-size:20px;line-height:1.3;letter-spacing:-.55px;font-weight:550;margin:13px 0 9px}.symptom{font-size:11px;color:#aab8be;display:flex;align-items:center;gap:7px}.symptom .symbol{color:#e4bb7e;font-size:14px}.card-body{padding:19px 23px 22px}.label{font-size:9px;letter-spacing:1.35px;color:#81959d;text-transform:uppercase;font-weight:650}.evidence-strip{display:grid;grid-template-columns:1fr 1fr 1fr;margin:10px 0 22px;padding:14px 12px;border:1px solid var(--line);background:#0e161b;border-radius:6px;gap:8px}.evidence-cell{border-right:1px solid #26323a;padding-left:3px}.evidence-cell:last-child{border:0}.evidence-cell .caption{font-size:9px;color:#84979f;margin-bottom:7px}.evidence-value{font-size:12px;font-weight:550}.evidence-value.paid{color:var(--teal)}.proposal{margin:10px 0 17px}.proposal-title{font-size:15px;letter-spacing:-.2px;font-weight:550}.proposal-title .arrow{color:var(--teal);margin-right:8px}.proposal p{font-size:11px;line-height:1.7;color:#adbcc1;margin:9px 0 0;min-height:38px}.action{width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border:1px solid #a0e0c9;border-radius:6px;background:#a7e5ce;color:#122b24;font-size:12px;font-weight:650;transition:background .2s}.action.secondary{background:transparent;color:#bcebdc;border-color:#486b60}.action:hover:not(:disabled){background:#c4f6e3;color:#112b21}.action.done{background:#1a2e28;color:#b1dbc8;border-color:#355347}.action .arrow{font-size:16px}.action-note{font-size:9px;color:#879aa2;margin-top:8px;min-height:14px}.outcomes{display:grid;grid-template-columns:1fr 1fr;gap:12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 0;margin:15px 0}.outcome-label{font-size:9px;color:#90a3ab;margin-bottom:8px}.outcome-value{font-size:12px;color:#c0cdd2;display:flex;align-items:center;gap:6px}.outcome-value.success{color:var(--teal)}.checks-head{display:flex;align-items:center;justify-content:space-between;margin:18px 0 12px}.checks-head .count{font-size:10px;color:#a7b9bf}.checks{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr;gap:9px}.checks li{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#c3ced2;gap:12px}.check-state{font-size:9px;letter-spacing:.4px;color:#d9ba86}.check-state.pass{color:#9ed9c2}.check-state.unknown{color:#adbbc0}.check-state .check-symbol{margin-right:5px}.evidence-details{border-top:1px solid var(--line);margin-top:19px;padding-top:14px}.evidence-details summary{font-size:10px;color:#b2c3cb;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between}.evidence-details summary:after{content:'+';font-size:16px}.evidence-details[open] summary:after{content:'−'}.timeline{padding:6px 0 0 14px;margin:15px 0;border-left:1px solid #365046}.timeline-item{position:relative;padding:0 0 15px 9px}.timeline-item:before{content:'';position:absolute;width:5px;height:5px;border-radius:50%;background:#87bca8;left:-17px;top:5px}.timeline-item b{font-size:10px;color:#c7d8da;font-weight:550}.timeline-item p{font-size:10px;line-height:1.6;color:#96aab3;margin:4px 0}.timeline-item .mono{font-size:8px;color:#91a69f;overflow-wrap:anywhere}.raw summary{font-size:10px;color:#96aaa8;cursor:pointer}pre{font-size:10px;line-height:1.65;color:#b5c8cb;white-space:pre-wrap;overflow-wrap:anywhere;background:#0d1419;padding:12px;border-radius:5px;max-height:320px;overflow:auto}.footer{display:flex;justify-content:space-between;gap:20px;color:#81959e;border-top:1px solid var(--line);margin-top:28px;padding-top:18px;font-size:9px;line-height:1.8}.footer strong{font-weight:500;color:#b8c9ca}#error{margin:12px 0;color:#ffb9aa;font-size:12px}#error:empty{display:none}.loading{padding:40px;color:var(--muted);font-size:13px}.presentation .sidebar{display:none}.presentation .shell{margin-left:0}.presentation .content{max-width:1340px}.presentation .intro-note{display:none}@media(min-width:1600px){.content{padding-top:45px}.card-head h3{font-size:23px}.proposal p,.checks li,.evidence-value{font-size:13px}.action{font-size:13px}.outcome-value{font-size:14px}.card-body{padding-top:22px}.evidence-strip{padding-top:17px;padding-bottom:17px}}
+@media(max-width:1150px){.sidebar{width:180px;padding-left:17px;padding-right:17px}.brand{font-size:19px}.shell{margin-left:180px}.topbar{padding:0 25px}.content{padding-left:25px;padding-right:25px}.intro-note{display:none}.card-head,.card-body{padding-left:17px;padding-right:17px}.card-head h3{font-size:18px}.metric{padding:16px}.metric-label{font-size:10px}.evidence-strip{grid-template-columns:1fr 1fr}.evidence-cell:nth-child(2){border:0}.evidence-cell:last-child{grid-column:1/-1;padding-top:8px}}
+@media(max-width:850px){.sidebar{display:none}.shell{margin-left:0}.topbar{height:61px}.grid{gap:14px}.content{padding-top:27px}.intro{margin-bottom:20px}h1{font-size:35px}.evidence-strip{grid-template-columns:1fr 1fr 1fr}.evidence-cell:nth-child(2){border-right:1px solid var(--line)}.evidence-cell:last-child{grid-column:auto;padding-top:0}.metric-value{font-size:22px}.breadcrumb{font-size:10px}.top-actions{gap:10px}}
+@media(max-width:650px){.content{padding:24px 16px}.topbar{padding:0 16px}.breadcrumb .workspace-name,.slash{display:none}.pill{font-size:8px}.quiet-button{font-size:10px;padding:8px}.grid{grid-template-columns:1fr}.intro p{font-size:12px}.intro h1{font-size:34px;letter-spacing:-1.3px}.environment{align-items:flex-start;font-size:10px}.environment b{font-size:9px}.metrics{margin-top:17px}.metric{padding:12px 10px;display:block}.metric-label{font-size:9px;line-height:1.5;min-height:27px}.metric-value{margin-top:5px;font-size:22px}.metric-value.small{font-size:11px;padding-top:8px}.card-head h3{font-size:22px}.card-body{padding:19px}.card-head{padding:19px}.proposal p,.checks li{font-size:12px}.section-heading span{font-size:9px}.footer{display:block}.footer div+div{margin-top:9px}.action-note{font-size:10px}.outcome-value{font-size:12px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* Presentation prioritizes payment evidence, authorization, and outcomes. */
+.presentation-brand{display:none}.checks-details>summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;margin:17px 0 12px}.checks-details>summary:after{content:'+';font-size:16px;color:var(--muted);margin-left:10px}.checks-details[open]>summary:after{content:'−'}.checks-details .checks-head{display:contents}.checks-details .checks{padding-bottom:5px}.presentation .presentation-brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:650;letter-spacing:-.5px}.presentation .presentation-brand .mark{transform:scale(.75);transform-origin:left center;width:23px}.presentation .breadcrumb{display:none}.presentation .topbar{height:56px}.presentation .content{max-width:1450px;padding:18px 30px}.presentation .intro{margin-bottom:13px}.presentation .intro h1{font-size:31px;letter-spacing:-1px;margin:7px 0 0}.presentation .intro h1 br{display:none}.presentation .intro h1 em:before{content:' '}.presentation .intro p{display:none}.presentation .eyebrow{font-size:9px}.presentation .environment{padding:7px 11px;font-size:10px}.presentation .metrics{margin:12px 0 17px}.presentation .metric{padding:11px 18px}.presentation .metric-value{font-size:22px}.presentation .metric-value.small{font-size:13px}.presentation .card-head{padding:15px 20px}.presentation .card-head h3{font-size:21px;margin:9px 0 7px}.presentation .card-body{padding:16px 20px}.presentation .evidence-strip{margin:8px 0 17px;padding:12px}.presentation .proposal{margin:9px 0 13px}.presentation .proposal p{font-size:12px;min-height:0;margin-top:7px;line-height:1.5}.presentation .action{padding:11px 14px;font-size:13px}.presentation .outcomes{background:#0e171c;border:1px solid var(--line);border-radius:6px;padding:13px;margin:13px 0}.presentation .outcome-value{font-size:15px;font-weight:600}.presentation .outcome-value.success{color:#a7f2d2}.presentation .checks-details>summary{margin:12px 0 8px}.presentation .evidence-details{margin-top:12px;padding-top:10px}.presentation .footer{margin-top:17px;padding-top:12px}.presentation .footer br{display:none}.presentation .footer div:last-child{display:none}.presentation .fulfillment-note{margin:8px 0;font-size:10px}.presentation .capture-comparison{font-size:16px;color:#d3e9df;letter-spacing:-.4px}.presentation .incident.verified{animation:verified-arrival .45s ease-out}.capture-comparison{font-variant-numeric:tabular-nums}@keyframes verified-arrival{from{border-color:#b3f8d9;box-shadow:0 0 0 2px #a1e6cc25}to{border-color:#3f7565;box-shadow:none}}
+@media(max-width:850px){.presentation .content{padding:18px}.presentation .evidence-strip{grid-template-columns:1fr 1fr 1fr}.presentation .outcome-value{font-size:12px}.presentation .card-head h3{font-size:18px}}@media(max-width:650px){.presentation .content{padding:18px 14px}.presentation .intro h1{font-size:29px}.presentation .intro h1 br{display:block}.presentation .intro h1 em:before{content:''}.presentation .outcome-value{font-size:13px}.presentation .card-head h3{font-size:21px}.presentation .topbar{padding:0 14px}.presentation .top-actions .pill{display:none}}
+.presentation .evidence-cell:last-child .evidence-value{font-size:16px;color:#d3e9df;font-variant-numeric:tabular-nums}@media(prefers-reduced-motion:reduce){.presentation .incident.verified{animation:none}}
+</style>
+</head>
+<body>
+<aside class="sidebar" aria-label="Workspace">
+ <div class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>IncidentLab</div>
+ <div class="workspace-label">WORKSPACE</div>
+ <div class="nav-current" aria-current="page"><span aria-hidden="true">⌘</span> Recovery console</div>
+ <div class="sidebar-bottom"><span class="status-dot"></span>Local demo environment<br>Evidence before action.<br>Verification after recovery.</div>
+</aside>
+<div class="shell">
+ <nav class="topbar" aria-label="Page context">
+  <div class="presentation-brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>IncidentLab</div>
+  <div class="breadcrumb"><span class="workspace-name">Workspace</span><span class="slash">/</span><b>Recovery console</b></div>
+  <div class="top-actions"><span class="pill" id="demo-mode">Offline demo</span><button class="quiet-button" id="presentation" aria-pressed="false">Presentation view ↗</button></div>
+ </nav>
+ <main class="content">
+  <header class="intro"><div><div class="eyebrow">Payment incident recovery</div><h1>Same error.<br><em>Different recovery.</em></h1><p>Establish what happened to the payment.<br>Recover the order with evidence, approval, and independent verification.</p></div><div class="intro-note">ONE CUSTOMER SYMPTOM<br><span class="mono">Checkout could not be confirmed</span></div></header>
+  <div class="environment" role="note"><b>SIMULATION</b><span id="environment-label">Fake provider · Branching rules · No AI or PayPal requests</span></div>
+  <section class="metrics" aria-label="Workspace summary">
+   <div class="metric"><div class="metric-label">Incidents in this workspace</div><div class="metric-value" id="incident-count">—</div></div>
+   <div class="metric"><div class="metric-label">Independently verified</div><div class="metric-value" id="verified-count" aria-live="polite">—</div></div>
+   <div class="metric"><div class="metric-label">Active controller</div><div class="metric-value small" id="controller-label">Branching rules</div></div>
+  </section>
+  <div class="section-heading"><h2>Recovery workspace</h2><span>USD 1.00 orders · Synthetic fulfillment</span></div>
+  <p id="error" role="alert"></p>
+  <section class="grid" id="cards" aria-label="Payment incidents"><div class="loading">Loading diagnostic evidence…</div></section>
+  <footer class="footer"><div><strong>AI proposes. Code decides. Human approves. Verifier confirms.</strong><br><span id="controller-note">This preview uses rules; real AI model evaluation is separate.</span></div><div>Execution success ≠ verified recovery.<br>Each outcome is checked against fresh provider and local evidence.</div></footer>
+ </main>
+</div>
+<script>
+'use strict';
+const token = '__TOKEN__';
+const initialCaptures = new Map();
+const actionNames = {
+ capture_approved_order: 'Capture the approved payment',
+ reconcile_order: 'Reconcile the existing payment',
+ escalate: 'Escalate for investigation'
+};
+const checkNames = {
+ provider_payment_completed: 'Provider payment completed',
+ order_identity_matches: 'Order identity matches',
+ amount_currency_match: 'Amount & currency match',
+ local_state_matches: 'Local payment state matches',
+ single_fulfillment: 'Exactly one matching fulfillment'
+};
+const toolNames = {
+ get_local_order: 'Local order inspected',
+ get_paypal_order: 'Provider payment inspected',
+ get_application_events: 'Application journal inspected'
+};
+function element(tag, text, cls) {
+ const node = document.createElement(tag);
+ if (text !== undefined) node.textContent = text;
+ if (cls) node.className = cls;
+ return node;
+}
+function append(parent, ...children) { parent.append(...children); return parent; }
+function badge(text, cls = '') { return element('span', text, 'badge ' + cls); }
+function outcome(label, value, success) {
+ return append(element('div'), element('div', label, 'outcome-label'),
+  element('div', (success ? '✓  ' : '') + value, 'outcome-value' + (success ? ' success' : '')));
+}
+function evidenceCell(label, value, paid = false) {
+ return append(element('div', undefined, 'evidence-cell'), element('div', label, 'caption'),
+  element('div', value, 'evidence-value' + (paid ? ' paid' : '')));
+}
+async function investigate(card, button) {
+ button.disabled = true;
+ button.textContent = 'AI is inspecting payment evidence…';
+ document.getElementById('error').textContent = '';
+ try {
+  const response = await fetch('/api/investigate', {
+   method: 'POST', headers: {'Content-Type': 'application/json', 'X-Demo-Token': token},
+   body: JSON.stringify({order_id: card.order_id})
+  });
+  const data = await response.json();
+  if (!response.ok) throw Error('Investigation unavailable. Refresh to inspect or restart the demo.');
+  render(data);
+ } catch (error) {
+  document.getElementById('error').textContent = error.message;
+  button.textContent = 'Investigation unavailable · refresh to inspect';
+ }
+}
+async function execute(card, approve, button) {
+ button.disabled = true;
+ button.textContent = 'Checking evidence & executing…';
+ document.getElementById('error').textContent = '';
+ try {
+  const response = await fetch('/api/execute', {
+   method: 'POST', headers: {'Content-Type': 'application/json', 'X-Demo-Token': token},
+   body: JSON.stringify({order_id: card.order_id, approve})
+  });
+  const data = await response.json();
+  if (!response.ok) throw Error(data.error || 'Execution unavailable.');
+  render(data);
+ } catch (error) {
+  document.getElementById('error').textContent = error.message + ' Inspect current state before retrying.';
+  // Do not re-enable a mutation after an uncertain network outcome.
+  button.textContent = 'Outcome unavailable · refresh to inspect';
+ }
+}
+function evidenceDetails(card, observations) {
+ const details = element('details', undefined, 'evidence-details');
+ details.append(element('summary', 'Evidence trail & diagnostic records'));
+ const timeline = element('div', undefined, 'timeline');
+ const rows = card.report ? card.report.timeline : observations.map((row, index) => ({
+  sequence: index + 1, stage: 'tool_result', summary: toolNames[row.tool] + ' · ' + row.status,
+  evidence_ids: [row.evidence_id]
+ }));
+ for (const row of rows) {
+  const item = append(element('div', undefined, 'timeline-item'),
+   element('b', String(row.sequence).padStart(2, '0') + '  ' + row.stage.replaceAll('_', ' ')),
+   element('p', row.summary));
+  if (row.evidence_ids.length) item.append(element('div', 'Evidence: ' + row.evidence_ids.join(', '), 'mono'));
+  timeline.append(item);
+ }
+ details.append(timeline);
+ const raw = element('details', undefined, 'raw');
+ raw.append(element('summary', 'Inspect source JSON'),
+  element('pre', JSON.stringify({observations, timeline: rows, investigation: card.investigation, execution_model_settings: card.execution_model_settings}, null, 2)));
+ const download = element('button', 'Download investigation record', 'quiet-button');
+ download.onclick = () => {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(card, null, 2)], {type: 'application/json'}));
+  const link = element('a');
+  link.href = url; link.download = 'incidentlab-' + card.order_id + '.json'; link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+ };
+ details.append(raw, download);
+ return details;
+}
+function render(cards) {
+ const expanded = new Set(Array.from(document.querySelectorAll('.incident')).filter(node => node.querySelector('.evidence-details[open]')).map(node => node.dataset.order));
+ const ai = cards.some(card => card.controller === 'agent');
+ document.getElementById('demo-mode').textContent = ai ? 'Real AI · Fake payments' : 'Offline demo';
+ document.getElementById('environment-label').textContent = ai
+  ? 'Fake provider · Real model requests · Human approval · No PayPal requests'
+  : 'Fake provider · Branching rules · No AI or PayPal requests';
+ document.getElementById('controller-label').textContent = ai ? 'AI investigator' : 'Branching rules';
+ document.getElementById('controller-note').textContent = ai
+  ? 'Real model: ' + (cards[0].model || 'configured investigator') + '. Payment provider and fulfillment are synthetic.'
+  : 'This preview uses rules; real AI model evaluation is separate.';
+ const container = document.getElementById('cards');
+ container.replaceChildren();
+ document.getElementById('incident-count').textContent = String(cards.length).padStart(2, '0');
+ const verified = cards.filter(card => card.verification.status === 'VERIFIED').length;
+ document.getElementById('verified-count').replaceChildren(document.createTextNode(String(verified).padStart(2, '0')),
+  element('span', '/ ' + String(cards.length).padStart(2, '0'), 'denominator'));
+ for (const [index, card] of cards.entries()) {
+  if (!initialCaptures.has(card.order_id)) initialCaptures.set(card.order_id, card.capture_count);
+  const report = card.report;
+  const done = card.verification.status === 'VERIFIED';
+  const awaitingInvestigation = card.controller === 'agent' && !card.proposal;
+  const proposal = (report ? report.decision : card.proposal) || {action: 'investigate', summary: 'Ask the AI to inspect the local order, provider payment and application journal. No recovery runs during investigation.'};
+  const observations = card.evidence.observations;
+  const provider = observations.find(row => row.tool === 'get_paypal_order' && row.status === 'OK');
+  const local = observations.find(row => row.tool === 'get_local_order' && row.status === 'OK');
+  const box = element('article', undefined, 'incident' + (done ? ' verified' : ''));
+  box.dataset.order = card.order_id;
+  const head = element('header', undefined, 'card-head');
+  append(head, append(element('div', undefined, 'card-top'),
+   element('span', 'INC–' + String(index + 1).padStart(3, '0'), 'incident-id mono'),
+   done ? badge('✓  Recovery verified', 'success') : badge(awaitingInvestigation ? 'Awaiting investigation' : report ? 'Review required' : 'Recovery required')),
+   element('h3', card.family === 'before-submit' ? 'Capture never submitted' : 'Captured. Confirmation lost.'),
+   append(element('div', undefined, 'symptom'), element('span', '◌', 'symbol'), element('span', 'Checkout could not be confirmed')));
+  box.append(head);
+  const body = element('div', undefined, 'card-body');
+  body.append(element('div', '01 / Payment evidence', 'label'));
+  body.append(append(element('div', undefined, 'evidence-strip'),
+   evidenceCell('Provider state', provider ? provider.data.status : 'Unavailable', provider && provider.data.status === 'COMPLETED'),
+   evidenceCell('Local payment', local ? (local.data.payment_state === 'PAID' ? 'Paid' : 'Unconfirmed') : 'Unavailable', local && local.data.payment_state === 'PAID'),
+   evidenceCell('Captures · first view → now', String(initialCaptures.get(card.order_id)).padStart(2, '0') + ' → ' + String(card.capture_count).padStart(2, '0'))));
+  body.append(element('div', '02 / Proposed recovery', 'label'));
+  body.append(append(element('div', undefined, 'proposal'),
+   append(element('div', undefined, 'proposal-title'), element('span', '↳', 'arrow'), document.createTextNode(actionNames[proposal.action] || 'Investigate payment evidence')),
+   element('p', proposal.summary)));
+  const capture = proposal.action === 'capture_approved_order';
+  const button = element('button', undefined, 'action' + (capture || awaitingInvestigation ? '' : ' secondary') + (report ? ' done' : ''));
+  const buttonText = report ? (done ? 'Recovery completed' : 'Execution recorded · inspect result') :
+   awaitingInvestigation ? 'Investigate with AI' : proposal.action === 'escalate' ? 'Escalated · operator review required' : capture ? 'Approve capture · ' + card.currency + ' ' + card.amount : 'Reconcile existing payment';
+  append(button, element('span', buttonText), element('span', done ? '✓' : report ? '·' : '→', 'arrow'));
+  button.disabled = !!report || proposal.action === 'escalate';
+  button.onclick = () => awaitingInvestigation ? investigate(card, button) : execute(card, capture, button);
+  body.append(button, element('div', report ? 'Outcome independently checked below.' : awaitingInvestigation ? 'Three diagnostic tools only. No payment execution.' : proposal.action === 'escalate' ? 'No recovery is authorized. Review the evidence.' : card.controller === 'agent' ? (capture ? 'Your approval authorizes this simulated capture. Evidence is rechecked first.' : 'Rechecks evidence, then reconciles. No new capture request.') : capture ? 'Your approval authorizes this simulated capture.' : 'Uses the existing capture. No new capture request.', 'action-note'));
+  const execution = report ? report.execution.status : 'NOT STARTED';
+  const verification = card.verification.status;
+  body.append(append(element('div', undefined, 'outcomes'),
+   outcome('EXECUTION', execution, execution === 'SUCCEEDED'),
+   outcome('INDEPENDENT VERIFICATION', verification, done)));
+  const passes = card.verification.checks.filter(check => check.status === 'PASS').length;
+  const checksDetails = element('details', undefined, 'checks-details');
+  checksDetails.open = !document.body.classList.contains('presentation');
+  checksDetails.append(append(element('summary'), append(element('div', undefined, 'checks-head'), element('span', '03 / Verification checks', 'label'), element('span', passes + ' / ' + card.verification.checks.length + ' passed', 'count'))));
+  const checks = element('ul', undefined, 'checks');
+  for (const check of card.verification.checks) {
+   const state = element('span', undefined, 'check-state ' + (check.status === 'PASS' ? 'pass' : check.status === 'UNKNOWN' ? 'unknown' : ''));
+   append(state, element('span', check.status === 'PASS' ? '✓' : check.status === 'UNKNOWN' ? '○' : '–', 'check-symbol'), document.createTextNode(check.status));
+   checks.append(append(element('li'), element('span', checkNames[check.name] || check.name), state));
+  }
+  checksDetails.append(checks);
+  body.append(checksDetails);
+  body.append(element('p', 'Fulfillment records: ' + card.verification.fulfillment_count, 'muted mono fulfillment-note'));
+  const details = evidenceDetails(card, report ? report.evidence.observations : card.investigation ? card.investigation.evidence.observations : observations);
+  details.open = expanded.has(card.order_id);
+  body.append(details);box.append(body);container.append(box);
+ }
+}
+document.getElementById('presentation').onclick = event => {
+ const active = document.body.classList.toggle('presentation');
+ document.querySelectorAll('.checks-details').forEach(details => { details.open = !active; });
+ window.scrollTo({top: 0, behavior: 'instant'});
+ event.currentTarget.setAttribute('aria-pressed', String(active));
+ event.currentTarget.textContent = active ? 'Exit presentation ↙' : 'Presentation view ↗';
+};
+fetch('/api/state').then(response => {
+ if (!response.ok) throw Error('Report unavailable.');
+ return response.json();
+}).then(render).catch(() => {
+ document.getElementById('cards').replaceChildren();
+ document.getElementById('error').textContent = 'Report unavailable. Restart the local demo.';
+});
+</script>
+</body>
+</html>

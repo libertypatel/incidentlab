@@ -1,0 +1,154 @@
+{
+  "contract_version": "1.0",
+  "run_id": "25560ea2-489b-4005-a9d7-0f658a56e91a",
+  "controller": "rules",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "f27a46a2235342c484d0505923d7a9b6",
+    "order_id": "7ac148fd32aa43fda8422bfef62dc9aa",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "8dc58b6e2c3b4324bf967d863ea12462",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "7ac148fd32aa43fda8422bfef62dc9aa",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:39:47.512192Z"
+      },
+      {
+        "evidence_id": "e5829177e15a4dbd82f9321f56db72fd",
+        "tool": "get_paypal_order",
+        "status": "ERROR",
+        "error": {
+          "code": "TIMEOUT",
+          "message": "Diagnostic source timed out; payment outcome is not established."
+        },
+        "observed_at": "2026-11-10T04:39:47.512326Z"
+      },
+      {
+        "evidence_id": "98b5fca55bb8437d88c3517656089bc6",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": [
+            {
+              "event": "CAPTURE_NOT_SENT",
+              "message": "Matching durable capture journal is UNSENT with no capture_started record."
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T04:39:47.512614Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "f27a46a2235342c484d0505923d7a9b6",
+    "order_id": "7ac148fd32aa43fda8422bfef62dc9aa",
+    "action": "capture_approved_order",
+    "summary": "Naive baseline: retry capture for every checkout error.",
+    "evidence_ids": [
+      "8dc58b6e2c3b4324bf967d863ea12462",
+      "e5829177e15a4dbd82f9321f56db72fd",
+      "98b5fca55bb8437d88c3517656089bc6"
+    ]
+  },
+  "execution": {
+    "decision_id": "f27a46a2235342c484d0505923d7a9b6",
+    "action": "capture_approved_order",
+    "status": "FAILED",
+    "message": "Recovery could not be confirmed; investigate before retrying."
+  },
+  "verification": {
+    "status": "INCONCLUSIVE",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "UNKNOWN"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "UNKNOWN"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "UNKNOWN"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "8dc58b6e2c3b4324bf967d863ea12462"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: ERROR",
+      "evidence_ids": [
+        "e5829177e15a4dbd82f9321f56db72fd"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "98b5fca55bb8437d88c3517656089bc6"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Naive baseline: retry capture for every checkout error.",
+      "evidence_ids": [
+        "8dc58b6e2c3b4324bf967d863ea12462",
+        "e5829177e15a4dbd82f9321f56db72fd",
+        "98b5fca55bb8437d88c3517656089bc6"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "FAILED: Recovery could not be confirmed; investigate before retrying.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "INCONCLUSIVE",
+      "evidence_ids": []
+    }
+  ]
+}

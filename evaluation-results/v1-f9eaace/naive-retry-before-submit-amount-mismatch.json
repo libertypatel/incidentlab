@@ -1,0 +1,161 @@
+{
+  "contract_version": "1.0",
+  "run_id": "0261854d-8737-4f96-9c3c-2d6b4a0a76ab",
+  "controller": "rules",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "5c66d25d1ece49f5a4efd978e1ca423d",
+    "order_id": "99eec801209d4278956d92cf871ee880",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "8286603cbeb240fe91a27ff1434ebb4e",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "99eec801209d4278956d92cf871ee880",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:39:47.578038Z"
+      },
+      {
+        "evidence_id": "e1743413ba9c4053a5479198a9c15e58",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "APPROVED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "99eec801209d4278956d92cf871ee880",
+            "currency": "USD",
+            "amount": "2.00"
+          },
+          "captures": []
+        },
+        "observed_at": "2026-11-10T04:39:47.578204Z"
+      },
+      {
+        "evidence_id": "dc3f75750d234732a68fa9b7697cf037",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": [
+            {
+              "event": "CAPTURE_NOT_SENT",
+              "message": "Matching durable capture journal is UNSENT with no capture_started record."
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T04:39:47.578490Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "5c66d25d1ece49f5a4efd978e1ca423d",
+    "order_id": "99eec801209d4278956d92cf871ee880",
+    "action": "capture_approved_order",
+    "summary": "Naive baseline: retry capture for every checkout error.",
+    "evidence_ids": [
+      "8286603cbeb240fe91a27ff1434ebb4e",
+      "e1743413ba9c4053a5479198a9c15e58",
+      "dc3f75750d234732a68fa9b7697cf037"
+    ]
+  },
+  "execution": {
+    "decision_id": "5c66d25d1ece49f5a4efd978e1ca423d",
+    "action": "capture_approved_order",
+    "status": "BLOCKED",
+    "message": "Provider identity, amount, or currency does not match."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "FAIL"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "FAIL"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "8286603cbeb240fe91a27ff1434ebb4e"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "e1743413ba9c4053a5479198a9c15e58"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "dc3f75750d234732a68fa9b7697cf037"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Naive baseline: retry capture for every checkout error.",
+      "evidence_ids": [
+        "8286603cbeb240fe91a27ff1434ebb4e",
+        "e1743413ba9c4053a5479198a9c15e58",
+        "dc3f75750d234732a68fa9b7697cf037"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "BLOCKED: Provider identity, amount, or currency does not match.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

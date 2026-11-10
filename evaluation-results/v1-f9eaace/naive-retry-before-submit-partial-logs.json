@@ -1,0 +1,156 @@
+{
+  "contract_version": "1.0",
+  "run_id": "8f857941-0e28-44db-8359-b0b6b58c19a1",
+  "controller": "rules",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "3148d18ae6814ad18952eeeca3972dea",
+    "order_id": "14ae0f4f7ed1442ba2975c9ccb1f7918",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "30a3d16aca8f4dfc8202d815a86232bb",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "14ae0f4f7ed1442ba2975c9ccb1f7918",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:39:47.634347Z"
+      },
+      {
+        "evidence_id": "4c47e79b4d794d6fa61cb166625b9143",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "APPROVED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "14ae0f4f7ed1442ba2975c9ccb1f7918",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": []
+        },
+        "observed_at": "2026-11-10T04:39:47.634527Z"
+      },
+      {
+        "evidence_id": "7a9bdd5e92414c7493824d5079f74b6b",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": []
+        },
+        "observed_at": "2026-11-10T04:39:47.634818Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "3148d18ae6814ad18952eeeca3972dea",
+    "order_id": "14ae0f4f7ed1442ba2975c9ccb1f7918",
+    "action": "capture_approved_order",
+    "summary": "Naive baseline: retry capture for every checkout error.",
+    "evidence_ids": [
+      "30a3d16aca8f4dfc8202d815a86232bb",
+      "4c47e79b4d794d6fa61cb166625b9143",
+      "7a9bdd5e92414c7493824d5079f74b6b"
+    ]
+  },
+  "execution": {
+    "decision_id": "3148d18ae6814ad18952eeeca3972dea",
+    "action": "capture_approved_order",
+    "status": "BLOCKED",
+    "message": "Durable proof of non-submission is unavailable; do not recapture."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "FAIL"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "30a3d16aca8f4dfc8202d815a86232bb"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "4c47e79b4d794d6fa61cb166625b9143"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "7a9bdd5e92414c7493824d5079f74b6b"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Naive baseline: retry capture for every checkout error.",
+      "evidence_ids": [
+        "30a3d16aca8f4dfc8202d815a86232bb",
+        "4c47e79b4d794d6fa61cb166625b9143",
+        "7a9bdd5e92414c7493824d5079f74b6b"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "BLOCKED: Durable proof of non-submission is unavailable; do not recapture.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}
