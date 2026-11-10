@@ -1,109 +1,140 @@
-# IncidentLab — Payment Investigation and Verified Recovery
+# IncidentLab — AI Incident Investigation and Verified Recovery
 
-**Milestone 1: payment feasibility prototype.** This is a Python command-line foundation, not the finished hackathon submission. There is no AI investigator or visual dashboard yet.
+**Manual PayPal sandbox validation restored a paid order after deliberately lost
+local confirmation, with one capture and one fulfillment record.** All five
+independent verification checks passed. This is sandbox evidence, not a production
+reliability or AI performance claim.
 
-Two customers see the same checkout error. One payment was never submitted; the other completed but its local confirmation was lost. Recovery must distinguish them using provider evidence.
+Two customers see the same checkout error. One capture was never submitted; the
+other completed but local confirmation was lost. IncidentLab investigates the
+payment evidence and proposes a bounded recovery.
 
-## Start here: no accounts or packages required
+**AI proposes, code decides, human approves, verifier confirms.**
 
-Requires Python 3.10 or newer. Open Terminal in this extracted `incidentlab` folder:
+## Run the interactive offline demo
 
-```bash
-python3 --version
-python3 demo_offline.py
-python3 -m unittest -v
+Python 3.10+; install the contract validator once:
+
+```sh
+python3 -m pip install jsonschema==4.26.0
+python3 offline_demo.py
 ```
 
-The walkthrough uses a **fake payment provider**, clearly labeled. It demonstrates the recovery mechanics, not PayPal compatibility or AI performance. On Windows, use `py` if `python3` is unavailable.
+The command opens a local report with two incidents side by side, evidence,
+proposals, explicit **Approve capture · USD 1.00**, execution outcomes, and
+independent verification checks. Press Ctrl+C to stop; restarting resets the demo.
+Use `--no-open` to print the URL without launching a browser.
 
-## First real milestone: PayPal sandbox
+**This demo uses a fake provider and a branching-rules controller, with no keys,
+AI inference, PayPal requests, or real fulfillment.** Its temporary database is
+discarded on exit. Approval is meaningful only within this simulated demo.
 
-1. Open https://developer.paypal.com/ and sign in. In the developer dashboard, use **Sandbox**, then Apps & Credentials. Create or select a sandbox REST application for a sandbox business account.
-2. Locate its Client ID and Secret. Keep these on your computer. Do not paste the Secret into a chat, screenshot, public repository, or submission.
-3. In Sandbox Testing Accounts, locate a separate **personal buyer test account** and its login details. Use that test buyer at approval, not your real payment account.
-4. Copy `.env.example` to `.env` and put the sandbox app credentials in it:
+## Architecture
 
-```bash
-cp .env.example .env
+`investigate(context, call_tool)` receives only three read-only diagnostic tools:
+`get_local_order`, `get_paypal_order`, `get_application_events`.
+
+1. The investigator collects evidence and returns a schema-valid decision with
+   evidence IDs and a plain-English operator summary.
+2. `run_incident` validates the proposal and trusted evidence references.
+3. The guarded executor checks payment identity, amount, currency and durable
+   submission history. Capture requires separate, expiring operator approval.
+4. The independent verifier parses a fresh provider GET and reads SQLite through
+   its own read-only connection. Execution success and VERIFIED remain separate.
+
+Allowed proposals: `capture_approved_order`, `reconcile_order`, `escalate`.
+No generated scripts, arbitrary API tools, refunds, or model-created approvals.
+Application messages are untrusted data, even if they claim human approval.
+
+## Connect a real AI investigator
+
+`investigator.AIInvestigator` implements the callback with bounded Chat Completions
+function-tool calls. The transport is injected, so teammate adapters can replace
+it. Configure these locally in the environment or ignored `.env`:
+
+```text
+INCIDENTLAB_LLM_URL=https://YOUR_PROVIDER/v1/chat/completions
+INCIDENTLAB_MODEL=YOUR_EXACT_MODEL_ID
+INCIDENTLAB_LLM_KEY=YOUR_KEY
 ```
 
-Open `.env` in a text editor. Fill in the two values, then save it. No quotation marks are required. The program loads this file from the current folder. It only sends API requests to `api-m.sandbox.paypal.com`.
+The provider must support this tool-call protocol and the documented settings.
+No compatibility with a particular model has been established yet. The adapter
+uses temperature 0, max_tokens 1400, 30-second request timeout, at most five
+rounds and six diagnostic calls. Malformed/unavailable responses escalate.
+Credentials, approval tokens, and raw provider errors are not model inputs.
 
-### Experiment A: completed payment, lost local confirmation
+To investigate an existing guarded sandbox order (requires local sandbox PayPal
+credentials as documented in `.env.example`):
 
-```bash
-python3 incidentlab.py create
+```sh
+python3 run_agent.py --db guarded-sandbox.sqlite3 --order-id LOCAL_ORDER_ID
 ```
 
-Copy the printed `local_order_id` somewhere temporary. Open the printed `approval_url` in your browser and approve the $1.00 sandbox purchase with the personal sandbox buyer. This is test money.
+This contacts the external model and PayPal sandbox. Capture needs a separate
+terminal confirmation showing order ID, amount, and currency. Inspect uncertain
+outcomes before retrying. The JSON report and model/settings/usage sidecar default
+to `/tmp`; retain them privately for evaluation. Never commit runtime credentials.
 
-The approval flow returns to `http://localhost:8765/approved`. **No callback server is included in this command-line milestone**, so a browser connection error there is expected; it does not prove whether approval succeeded. The next command checks the provider state. If PayPal rejects this return URL during order creation, stop and record the error; callback integration is an unverified compatibility point.
+## Evaluation and tests
 
-In the commands below, replace `LOCAL_ORDER_ID` with the ID that `create` printed; do not use the PayPal order ID.
-
-```bash
-python3 incidentlab.py capture LOCAL_ORDER_ID --fault lost-confirmation
-python3 incidentlab.py inspect LOCAL_ORDER_ID
-python3 incidentlab.py verify LOCAL_ORDER_ID
-python3 incidentlab.py reconcile LOCAL_ORDER_ID
-python3 incidentlab.py reconcile LOCAL_ORDER_ID
+```sh
+python3 -m unittest discover -q
+python3 contracts/validate_examples.py
+python3 evaluation.py
+# Optional paid/external model calls on synthetic offline cases:
+python3 evaluation.py --ai
 ```
 
-Expected: the injected fault leaves local state `UNKNOWN`; the initial verifier says `NOT_VERIFIED`. Reconciliation retrieves order details, validates completed capture evidence, and atomically records the paid order and one **simulated fulfillment**. Repeated reconciliation should still show one fulfillment. Reconciliation never calls the capture endpoint.
+Current local validation: **66 tests and four contract examples pass**. Scripted
+transport tests establish adapter behavior, not model quality. Offline HTTP checks
+exercise both interactive actions and independently verified final states.
+Browser rendering still needs local visual review.
 
-### Experiment B: capture never submitted
+The versioned suite has two development cases and twelve held-out variations per
+controller: provider read timeout, pending capture, amount mismatch, currency
+mismatch, partial log coverage, and an event claiming operator approval. Every
+controller uses the same guarded execution and verification interfaces.
 
-Create and approve a **new** sandbox order, then:
+Initial fake-provider results: branching rules selected 14/14 expected actions;
+naive retry selected 1/14 and proposed unsafe capture in 13/14. Both had zero
+observed duplicate captures because they share the guard. **AI n=0 until a real
+model evaluation is run.** See [EVALUATION.md](EVALUATION.md) for definitions and
+limits. These small authored fixtures are not a blinded independent benchmark.
 
-```bash
-python3 incidentlab.py capture LOCAL_ORDER_ID --fault before-submit
-python3 incidentlab.py reconcile LOCAL_ORDER_ID
-```
+## Real sandbox walkthrough
 
-Expected: the customer sees the same error, but reconciliation reports `NOT_VERIFIED` because there is no completed capture. To represent an operator clearing the injected configuration fault and explicitly submitting the approved payment:
+Use [SANDBOX_WALKTHROUGH.md](SANDBOX_WALKTHROUGH.md). The tested manual sequence is:
+APPROVED/zero captures → capture with skipped local finalization → local UNKNOWN,
+one completed capture, zero fulfillment → reconciliation → VERIFIED/PAID,
+one fulfillment, same capture identity/count.
 
-```bash
-python3 incidentlab.py capture LOCAL_ORDER_ID
-```
+[SANDBOX_VALIDATION.md](SANDBOX_VALIDATION.md) records earlier manual validation.
+Buyer approval (`APPROVED`) alone never establishes a completed payment. No callback
+server is needed for the CLI; a localhost browser error is not payment evidence.
 
-The fault here is a local interception switch, not a genuine broken deployment. Replacing it with an inspectable configuration fault is future work. The agent does not exist yet and therefore cannot inspect the fault label.
+## Limits and deployment
 
-## Checks and limits
+Supports one USD 1.00 purchase unit and one matching completed capture. Fulfillment
+is a synthetic database record. Partial captures, refunds, production money,
+ambiguous order creation recovery, and crash-claim recovery are outside scope.
+Guarded coordination does not cover legacy `incidentlab.py` mutation commands;
+use the guarded entry points. Sandbox fault injection skips local finalization,
+not a real dropped webhook. AI live integration and evaluation remain unverified.
 
-- Create and capture request IDs are persisted before network mutations.
-- A capture error or timeout leaves `UNKNOWN` state and blocks blind resubmission.
-- `APPROVED` is not treated as paid. Pending captures are not fulfilled.
-- Reconciliation checks provider order ID, local custom ID, completed capture, amount, and currency.
-- Fulfillment is a local database record, not a shipment or external action.
-- The read-only verifier makes a fresh provider query and checks local state. It shares the capture parser with reconciliation; it is separate operationally, not a fully independent implementation.
-- Recovery of an ambiguous **create** call is not implemented. The draft is retained as `CREATE_UNKNOWN`; do not automatically replace it. This prototype has no automatic API retries.
-- This supports one USD 1.00 purchase unit and one completed capture, no refunds, partial captures, or arbitrary payment flows. It is a local, sequential development tool, not production payment software.
-- It is not an AI benchmark. Offline tests do not establish absence of duplicate charges in a real integration. Validate actual sandbox transaction history before making that claim.
+AG Grid Community is an optional incident-table enhancement, not required by the
+local demo. We have not claimed sponsor-prize eligibility. Keep the no-network
+local page usable if adding it. Render is a candidate for a hosted fake-provider
+preview; do not deploy the local mutable demo as a shared public payment service.
+Render free instances have ephemeral storage and can sleep. A persistent sandbox
+service needs authentication, per-session state, durable storage, and a separate
+review. No hosted deployment is included here.
 
-## Next build stages
-
-1. Record a successful sandbox lost-confirmation experiment, including redacted IDs and actual provider/local state.
-2. Implement observable configuration faults, diagnostic tools, bounded action execution, and evidence logs that do not expose fault labels.
-3. Add an AI investigator; compare it against fixed-action and branching rules baselines on held-out variations.
-4. Build the visual store, evidence timeline, and outcome dashboard. Keep both successful and failed evaluation runs.
-
-## Project files
-
-- `incidentlab.py`: sandbox client, SQLite store, CLI, reconciliation, verifier.
-- `test_recovery.py`: offline behavioral tests and fake provider.
-- `demo_offline.py`: two-incident walkthrough.
-- `.env.example`: local credential template; `.gitignore` excludes credentials and databases.
-
-## Official references
-
-- https://developer.paypal.com/api/orders/v2/orders-create
-- https://developer.paypal.com/api/orders/v2/orders-capture
+Official references:
 - https://developer.paypal.com/api/orders/v2/orders-get
-- https://developer.paypal.com/api/rest/requests/
-- https://paypalaihackathon.devpost.com/rules
+- https://developer.paypal.com/api/orders/v2/orders-capture
+- https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create
+- https://www.ag-grid.com/eula/community/
+- https://render.com/docs/free
 
-API structure was checked against these references on October 20, 2026 UTC. Real sandbox calls have not yet been executed for this starter.
-
-## License
-
-MIT; see LICENSE. Review and understand all code before submitting it under your name.
+MIT; see LICENSE. Review and understand the implementation before submission.
