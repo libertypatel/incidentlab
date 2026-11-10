@@ -7,6 +7,11 @@ restored a paid order after deliberately lost local confirmation, with one captu
 one fulfillment record, and all five independent checks passing. These are small
 prototype results, not production reliability evidence.
 
+**The later eight-case conflict run exposed AI limitations:** two correct model
+escalations, one fallback escalation after a model-request HTTP error, and five
+incorrect recovery proposals blocked by the executor. No additional captures were
+dispatched. The first v2 run is retained separately; see [EVALUATION.md](EVALUATION.md).
+
 Two customers see the same checkout error. One capture was never submitted; the
 other completed but local confirmation was lost. IncidentLab investigates the
 payment evidence and proposes a bounded recovery.
@@ -110,7 +115,7 @@ python3 evaluation.py
 python3 evaluation.py --ai
 ```
 
-Current local validation: **75 tests and four contract examples pass**. Scripted
+Current local validation: **94 tests and four contract examples pass**. Scripted
 transport tests establish adapter behavior, not model quality. Offline HTTP checks
 exercise both interactive actions and independently verified final states.
 The local console and presentation view were reviewed in the Mac browser;
