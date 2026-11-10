@@ -124,6 +124,34 @@ class GuardedTests(unittest.TestCase):
         self.assertEqual(self.gateway.capture_calls, 1)
         self.assertEqual(verify_recovery(self.path, self.gateway.get, self.local)['status'], 'VERIFIED')
 
+    def test_capture_rejects_existing_local_capture_even_with_approval(self):
+        token = self.approve()
+        with self.store.db:
+            self.store.db.execute('UPDATE orders SET capture_id=? WHERE id=?', ('CONFLICTING-CAPTURE', self.local))
+        before = dict(self.store.order(self.local))
+        self.assertEqual(self.run_action(token=token)['status'], 'BLOCKED')
+        self.assertEqual(self.gateway.capture_calls, 0)
+        self.assertEqual(dict(self.store.order(self.local)), before)
+        self.assertEqual(self.store.db.execute('SELECT state FROM capture_journal WHERE order_id=?',
+                                              (self.local,)).fetchone()[0], 'UNSENT')
+        self.assertEqual(self.store.db.execute('SELECT used FROM capture_approvals WHERE token=?',
+                                              (token,)).fetchone()[0], 0)
+
+    def test_capture_rejects_existing_fulfillment_even_with_approval(self):
+        token = self.approve()
+        with self.store.db:
+            self.store.db.execute('INSERT INTO fulfillment VALUES (?,?)', (self.local, 'EARLIER-FULFILLMENT'))
+        before = dict(self.store.order(self.local))
+        self.assertEqual(self.run_action(token=token)['status'], 'BLOCKED')
+        self.assertEqual(self.gateway.capture_calls, 0)
+        self.assertEqual(dict(self.store.order(self.local)), before)
+        self.assertEqual(self.store.db.execute('SELECT capture_id FROM fulfillment WHERE order_id=?',
+                                              (self.local,)).fetchone()[0], 'EARLIER-FULFILLMENT')
+        self.assertEqual(self.store.db.execute('SELECT state FROM capture_journal WHERE order_id=?',
+                                              (self.local,)).fetchone()[0], 'UNSENT')
+        self.assertEqual(self.store.db.execute('SELECT used FROM capture_approvals WHERE token=?',
+                                              (token,)).fetchone()[0], 0)
+
     def test_timeout_is_durable_across_database_reopen(self):
         self.gateway.lose_transport_response = True
         self.assertEqual(self.run_action(token=self.approve())['status'], 'UNKNOWN')
