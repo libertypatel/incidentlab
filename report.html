@@ -30,20 +30,20 @@
  <nav class="topbar" aria-label="Page context">
   <div class="presentation-brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>IncidentLab</div>
   <div class="breadcrumb"><span class="workspace-name">Workspace</span><span class="slash">/</span><b>Recovery console</b></div>
-  <div class="top-actions"><span class="pill">Offline demo</span><button class="quiet-button" id="presentation" aria-pressed="false">Presentation view ↗</button></div>
+  <div class="top-actions"><span class="pill" id="demo-mode">Offline demo</span><button class="quiet-button" id="presentation" aria-pressed="false">Presentation view ↗</button></div>
  </nav>
  <main class="content">
   <header class="intro"><div><div class="eyebrow">Payment incident recovery</div><h1>Same error.<br><em>Different recovery.</em></h1><p>Establish what happened to the payment.<br>Recover the order with evidence, approval, and independent verification.</p></div><div class="intro-note">ONE CUSTOMER SYMPTOM<br><span class="mono">Checkout could not be confirmed</span></div></header>
-  <div class="environment" role="note"><b>SIMULATION</b><span>Fake provider · Branching rules · No AI or PayPal requests</span></div>
+  <div class="environment" role="note"><b>SIMULATION</b><span id="environment-label">Fake provider · Branching rules · No AI or PayPal requests</span></div>
   <section class="metrics" aria-label="Workspace summary">
    <div class="metric"><div class="metric-label">Incidents in this workspace</div><div class="metric-value" id="incident-count">—</div></div>
    <div class="metric"><div class="metric-label">Independently verified</div><div class="metric-value" id="verified-count" aria-live="polite">—</div></div>
-   <div class="metric"><div class="metric-label">Active controller</div><div class="metric-value small">Branching rules</div></div>
+   <div class="metric"><div class="metric-label">Active controller</div><div class="metric-value small" id="controller-label">Branching rules</div></div>
   </section>
   <div class="section-heading"><h2>Recovery workspace</h2><span>USD 1.00 orders · Synthetic fulfillment</span></div>
   <p id="error" role="alert"></p>
   <section class="grid" id="cards" aria-label="Payment incidents"><div class="loading">Loading diagnostic evidence…</div></section>
-  <footer class="footer"><div><strong>AI proposes. Code decides. Human approves. Verifier confirms.</strong><br>This preview uses rules; real AI model evaluation is separate.</div><div>Execution success ≠ verified recovery.<br>Each outcome is checked against fresh provider and local evidence.</div></footer>
+  <footer class="footer"><div><strong>AI proposes. Code decides. Human approves. Verifier confirms.</strong><br><span id="controller-note">This preview uses rules; real AI model evaluation is separate.</span></div><div>Execution success ≠ verified recovery.<br>Each outcome is checked against fresh provider and local evidence.</div></footer>
  </main>
 </div>
 <script>
@@ -83,6 +83,23 @@ function evidenceCell(label, value, paid = false) {
  return append(element('div', undefined, 'evidence-cell'), element('div', label, 'caption'),
   element('div', value, 'evidence-value' + (paid ? ' paid' : '')));
 }
+async function investigate(card, button) {
+ button.disabled = true;
+ button.textContent = 'AI is inspecting payment evidence…';
+ document.getElementById('error').textContent = '';
+ try {
+  const response = await fetch('/api/investigate', {
+   method: 'POST', headers: {'Content-Type': 'application/json', 'X-Demo-Token': token},
+   body: JSON.stringify({order_id: card.order_id})
+  });
+  const data = await response.json();
+  if (!response.ok) throw Error('Investigation unavailable. Refresh to inspect or restart the demo.');
+  render(data);
+ } catch (error) {
+  document.getElementById('error').textContent = error.message;
+  button.textContent = 'Investigation unavailable · refresh to inspect';
+ }
+}
 async function execute(card, approve, button) {
  button.disabled = true;
  button.textContent = 'Checking evidence & executing…';
@@ -119,12 +136,28 @@ function evidenceDetails(card, observations) {
  details.append(timeline);
  const raw = element('details', undefined, 'raw');
  raw.append(element('summary', 'Inspect source JSON'),
-  element('pre', JSON.stringify({observations, timeline: rows}, null, 2)));
- details.append(raw);
+  element('pre', JSON.stringify({observations, timeline: rows, investigation: card.investigation, execution_model_settings: card.execution_model_settings}, null, 2)));
+ const download = element('button', 'Download investigation record', 'quiet-button');
+ download.onclick = () => {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(card, null, 2)], {type: 'application/json'}));
+  const link = element('a');
+  link.href = url; link.download = 'incidentlab-' + card.order_id + '.json'; link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+ };
+ details.append(raw, download);
  return details;
 }
 function render(cards) {
  const expanded = new Set(Array.from(document.querySelectorAll('.incident')).filter(node => node.querySelector('.evidence-details[open]')).map(node => node.dataset.order));
+ const ai = cards.some(card => card.controller === 'agent');
+ document.getElementById('demo-mode').textContent = ai ? 'Real AI · Fake payments' : 'Offline demo';
+ document.getElementById('environment-label').textContent = ai
+  ? 'Fake provider · Real model requests · Human approval · No PayPal requests'
+  : 'Fake provider · Branching rules · No AI or PayPal requests';
+ document.getElementById('controller-label').textContent = ai ? 'AI investigator' : 'Branching rules';
+ document.getElementById('controller-note').textContent = ai
+  ? 'Real model: ' + (cards[0].model || 'configured investigator') + '. Payment provider and fulfillment are synthetic.'
+  : 'This preview uses rules; real AI model evaluation is separate.';
  const container = document.getElementById('cards');
  container.replaceChildren();
  document.getElementById('incident-count').textContent = String(cards.length).padStart(2, '0');
@@ -135,7 +168,8 @@ function render(cards) {
   if (!initialCaptures.has(card.order_id)) initialCaptures.set(card.order_id, card.capture_count);
   const report = card.report;
   const done = card.verification.status === 'VERIFIED';
-  const proposal = report ? report.decision : card.proposal;
+  const awaitingInvestigation = card.controller === 'agent' && !card.proposal;
+  const proposal = (report ? report.decision : card.proposal) || {action: 'investigate', summary: 'Ask the AI to inspect the local order, provider payment and application journal. No recovery runs during investigation.'};
   const observations = card.evidence.observations;
   const provider = observations.find(row => row.tool === 'get_paypal_order' && row.status === 'OK');
   const local = observations.find(row => row.tool === 'get_local_order' && row.status === 'OK');
@@ -144,7 +178,7 @@ function render(cards) {
   const head = element('header', undefined, 'card-head');
   append(head, append(element('div', undefined, 'card-top'),
    element('span', 'INC–' + String(index + 1).padStart(3, '0'), 'incident-id mono'),
-   done ? badge('✓  Recovery verified', 'success') : badge(report ? 'Review required' : 'Recovery required')),
+   done ? badge('✓  Recovery verified', 'success') : badge(awaitingInvestigation ? 'Awaiting investigation' : report ? 'Review required' : 'Recovery required')),
    element('h3', card.family === 'before-submit' ? 'Capture never submitted' : 'Captured. Confirmation lost.'),
    append(element('div', undefined, 'symptom'), element('span', '◌', 'symbol'), element('span', 'Checkout could not be confirmed')));
   box.append(head);
@@ -156,16 +190,16 @@ function render(cards) {
    evidenceCell('Captures · first view → now', String(initialCaptures.get(card.order_id)).padStart(2, '0') + ' → ' + String(card.capture_count).padStart(2, '0'))));
   body.append(element('div', '02 / Proposed recovery', 'label'));
   body.append(append(element('div', undefined, 'proposal'),
-   append(element('div', undefined, 'proposal-title'), element('span', '↳', 'arrow'), document.createTextNode(actionNames[proposal.action] || proposal.action)),
+   append(element('div', undefined, 'proposal-title'), element('span', '↳', 'arrow'), document.createTextNode(actionNames[proposal.action] || 'Investigate payment evidence')),
    element('p', proposal.summary)));
-  const capture = card.proposal.action === 'capture_approved_order';
-  const button = element('button', undefined, 'action' + (capture ? '' : ' secondary') + (report ? ' done' : ''));
+  const capture = proposal.action === 'capture_approved_order';
+  const button = element('button', undefined, 'action' + (capture || awaitingInvestigation ? '' : ' secondary') + (report ? ' done' : ''));
   const buttonText = report ? (done ? 'Recovery completed' : 'Execution recorded · inspect result') :
-   capture ? 'Approve capture · ' + card.currency + ' ' + card.amount : 'Reconcile existing payment';
+   awaitingInvestigation ? 'Investigate with AI' : proposal.action === 'escalate' ? 'Escalated · operator review required' : capture ? 'Approve capture · ' + card.currency + ' ' + card.amount : 'Reconcile existing payment';
   append(button, element('span', buttonText), element('span', done ? '✓' : report ? '·' : '→', 'arrow'));
-  button.disabled = !!report || card.proposal.action === 'escalate';
-  button.onclick = () => execute(card, capture, button);
-  body.append(button, element('div', report ? 'Outcome independently checked below.' : capture ? 'Your approval authorizes this simulated capture.' : 'Uses the existing capture. No new capture request.', 'action-note'));
+  button.disabled = !!report || proposal.action === 'escalate';
+  button.onclick = () => awaitingInvestigation ? investigate(card, button) : execute(card, capture, button);
+  body.append(button, element('div', report ? 'Outcome independently checked below.' : awaitingInvestigation ? 'Three diagnostic tools only. No payment execution.' : proposal.action === 'escalate' ? 'No recovery is authorized. Review the evidence.' : card.controller === 'agent' ? (capture ? 'Your approval authorizes this simulated capture. Evidence is rechecked first.' : 'Rechecks evidence, then reconciles. No new capture request.') : capture ? 'Your approval authorizes this simulated capture.' : 'Uses the existing capture. No new capture request.', 'action-note'));
   const execution = report ? report.execution.status : 'NOT STARTED';
   const verification = card.verification.status;
   body.append(append(element('div', undefined, 'outcomes'),
@@ -184,7 +218,7 @@ function render(cards) {
   checksDetails.append(checks);
   body.append(checksDetails);
   body.append(element('p', 'Fulfillment records: ' + card.verification.fulfillment_count, 'muted mono fulfillment-note'));
-  const details = evidenceDetails(card, report ? report.evidence.observations : observations);
+  const details = evidenceDetails(card, report ? report.evidence.observations : card.investigation ? card.investigation.evidence.observations : observations);
   details.open = expanded.has(card.order_id);
   body.append(details);box.append(body);container.append(box);
  }

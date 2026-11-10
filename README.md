@@ -31,6 +31,24 @@ Use `--no-open` to print the URL without launching a browser.
 AI inference, PayPal requests, or real fulfillment.** Its temporary database is
 discarded on exit. Approval is meaningful only within this simulated demo.
 
+For the same console with real AI and fake payments, configure the model settings
+below, then run:
+
+```sh
+python3 offline_demo.py --ai
+```
+
+Click **Investigate with AI** on each incident. This calls the model with the three
+diagnostic tools and displays its actual proposal; it does not execute recovery.
+Then approve the displayed USD 1.00 capture or reconcile the existing payment.
+Execution performs a fresh AI investigation and blocks if the proposed action
+changes. Capture requires the separate operator click, and the verifier checks
+fresh provider/local state. Page loads and refreshes do not call the model.
+The mode banner distinguishes real model requests from fake payments; no PayPal
+requests are made by either console mode. Download each investigation record from
+the expanded evidence section to retain proposals, evidence, outcomes and model
+settings before stopping the temporary demo.
+
 ## Architecture
 
 `investigate(context, call_tool)` receives only three read-only diagnostic tools:
@@ -92,7 +110,7 @@ python3 evaluation.py
 python3 evaluation.py --ai
 ```
 
-Current local validation: **71 tests and four contract examples pass**. Scripted
+Current local validation: **74 tests and four contract examples pass**. Scripted
 transport tests establish adapter behavior, not model quality. Offline HTTP checks
 exercise both interactive actions and independently verified final states.
 The local console and presentation view were reviewed in the Mac browser;
@@ -143,8 +161,10 @@ Guarded coordination does not cover legacy `incidentlab.py` mutation commands;
 use the guarded entry points. Sandbox fault injection skips local finalization,
 not a real dropped webhook. Real-model investigation with fake payments is
 validated by the retained run. Combined AI-driven PayPal sandbox recovery remains
-unverified; the sandbox runs used a manual controller. The interactive page still
-uses branching rules and is labeled accordingly.
+unverified; the sandbox runs used a manual controller. The interactive page defaults
+to branching rules; `--ai` explicitly enables real model investigation on fake payments.
+The new AI console flow requires real-model browser validation; its authorization
+and execution paths have scripted tests.
 
 AG Grid Community is an optional incident-table enhancement, not required by the
 local demo. We have not claimed sponsor-prize eligibility. Keep the no-network
