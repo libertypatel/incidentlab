@@ -1,0 +1,161 @@
+{
+  "contract_version": "1.0",
+  "run_id": "3d1a8550-2e2c-4f6a-8ea3-c0d9991eefa6",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "4d79aecc2a264c3cab984d00fbf3b6aa",
+    "order_id": "f6553155feac4139a441fb7b22da2995",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "a1de079d5203401d843db4ad450ef85f",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "f6553155feac4139a441fb7b22da2995",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T13:40:02.520602Z"
+      },
+      {
+        "evidence_id": "45b5441cad48404fb979cd81611f2ddf",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "APPROVED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "another-local-order",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": []
+        },
+        "observed_at": "2026-11-10T13:40:03.348970Z"
+      },
+      {
+        "evidence_id": "c1365db89b0d4bc4a3a8820da890046f",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": [
+            {
+              "event": "CAPTURE_NOT_SENT",
+              "message": "Matching durable capture journal is UNSENT with no capture_started record."
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T13:40:04.717823Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "4d79aecc2a264c3cab984d00fbf3b6aa",
+    "action": "capture_approved_order",
+    "order_id": "f6553155feac4139a441fb7b22da2995",
+    "summary": "Local order UNCONFIRMED with no capture_id. Provider order SANDBOX-FAKE-1 is APPROVED with matching USD 1.00 amount and currency, custom_id another-local-order, and zero captures. Application event CAPTURE_NOT_SENT (evidence_id: c1365db89b0d4bc4a3a8820da890046f) confirms durable non-submission via unseent capture journal with no capture_started record. Identity/amount/currency match provider order evidence (evidence_id: 45b5441cad48404fb979cd81611f2ddf). Propose capture_approved_order requiring external operator approval.",
+    "evidence_ids": [
+      "a1de079d5203401d843db4ad450ef85f",
+      "45b5441cad48404fb979cd81611f2ddf",
+      "c1365db89b0d4bc4a3a8820da890046f"
+    ]
+  },
+  "execution": {
+    "decision_id": "4d79aecc2a264c3cab984d00fbf3b6aa",
+    "action": "capture_approved_order",
+    "status": "BLOCKED",
+    "message": "Provider identity, amount, or currency does not match."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "FAIL"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "a1de079d5203401d843db4ad450ef85f"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "45b5441cad48404fb979cd81611f2ddf"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "c1365db89b0d4bc4a3a8820da890046f"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Local order UNCONFIRMED with no capture_id. Provider order SANDBOX-FAKE-1 is APPROVED with matching USD 1.00 amount and currency, custom_id another-local-order, and zero captures. Application event CAPTURE_NOT_SENT (evidence_id: c1365db89b0d4bc4a3a8820da890046f) confirms durable non-submission via unseent capture journal with no capture_started record. Identity/amount/currency match provider order evidence (evidence_id: 45b5441cad48404fb979cd81611f2ddf). Propose capture_approved_order requiring external operator approval.",
+      "evidence_ids": [
+        "a1de079d5203401d843db4ad450ef85f",
+        "45b5441cad48404fb979cd81611f2ddf",
+        "c1365db89b0d4bc4a3a8820da890046f"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "BLOCKED: Provider identity, amount, or currency does not match.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

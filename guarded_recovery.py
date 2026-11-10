@@ -128,6 +128,9 @@ def _finalize(store, gateway, order_id):
     if not completed:
         raise GuardBlocked('A matching completed capture is required.')
     with store.db:
+        # A proposal cannot authorize overwriting a contradictory local payment reference.
+        if store.order(order_id)['capture_id'] not in (None, completed):
+            raise GuardBlocked('Conflicting local capture reference; operator investigation is required.')
         existing = store.db.execute('SELECT capture_id FROM fulfillment WHERE order_id=?', (order_id,)).fetchone()
         if existing and existing['capture_id'] != completed:
             raise GuardBlocked('Conflicting fulfillment reference.')
@@ -137,6 +140,9 @@ def _finalize(store, gateway, order_id):
 
 
 def _reserve_capture(store, order, approval_token):
+    if order['capture_id'] is not None or store.db.execute(
+            'SELECT 1 FROM fulfillment WHERE order_id=?', (order['id'],)).fetchone():
+        raise GuardBlocked('Local capture or fulfillment already exists; operator investigation is required.')
     journal = store.db.execute('SELECT * FROM capture_journal WHERE order_id=?', (order['id'],)).fetchone()
     if journal is None or journal['state'] != 'UNSENT':
         raise GuardBlocked('Durable proof of non-submission is unavailable; do not recapture.')

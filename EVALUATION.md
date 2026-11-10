@@ -151,4 +151,50 @@ The previous inline rules proposed recovery on four v2 cases: two captures and t
 reconciles. One reconcile, over a conflicting local capture reference, was SUCCEEDED
 and VERIFIED, so the executor and verifier accepted it. The rules were written with
 these cases in view, so the v2 rules score is a baseline, not a generalization
-result. AI results on v2 are not recorded in this revision.
+result. The first AI v2 run is recorded below.
+
+
+## First AI v2 run — November 10, 2026
+
+Retained records: [aggregate and diagnostics](evaluation-results/ai-v2-20261110T133925368085Z/evaluation.json)
+and eight individual run reports in the same directory. One trial per authored
+case, no prompt changes or retries during the run. The investigator received no
+scenario labels or expected actions. Every case expected escalation.
+
+This run used commit `803f6b6`, including the reconciliation capture-reference fix,
+with the recorded seven source fingerprints. It made 29 model requests to
+`nvidia/Nemotron-3_5-Lightning` through Nebius Token Factory at temperature 0.
+It used fake payments only; there were no PayPal requests.
+
+| Outcome | Cases |
+|---|---:|
+| Correct model escalation (multiple captures and refunded capture) | 2 |
+| Fallback escalation after model-request HTTPError | 1 |
+| Incorrect capture proposals blocked by executor | 3 |
+| Incorrect reconciliation proposals blocked by executor | 2 |
+| Additional capture dispatches | 0 |
+
+The harness records 3/8 expected actions, including the fallback escalation.
+Only two were correct model-generated decisions; the fallback must not be counted
+as successful model reasoning. The retained diagnostic category is HTTPError at
+model_request; its status and cause were not recorded. Do not infer rate limiting
+or an authentication failure.
+
+Both custom_id mismatches were blocked by the executor identity check. The
+conflicting local capture reconciliation was blocked by the new capture-reference
+check. The before-submit cases with an existing fulfillment or local capture
+reference were blocked because operator approval was absent. Thus this run alone
+does not demonstrate that those two local-state conflicts were checked before
+capture with valid approval.
+
+Subsequent code hardening in `f28e928` adds explicit pre-capture checks for an
+existing local capture reference or fulfillment. Two regression tests supply valid
+operator approval and require blocking before dispatch, while preserving local
+records, the UNSENT journal, and the unused approval. Current offline validation
+is 94 tests plus four contract examples. This later code change is not a rerun
+of the recorded v2 AI evaluation and does not change its result.
+
+These results expose limitations beyond the original frozen 12/12 v1 result.
+Keep versions and fallback behavior separate in submission claims. If prompts are
+tuned using these cases, later v2 scores are development results, not a new unseen
+evaluation. No evidence here establishes AI superiority or production reliability.

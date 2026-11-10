@@ -1,0 +1,109 @@
+{
+  "contract_version": "1.0",
+  "run_id": "6e3596f8-4896-40a2-9e11-fac0f332632e",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "03c17169d43f409b92e523f09b048d93",
+    "order_id": "de2bb3a939554553948db7de22632902",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "63d12f846fce407597330d8fdcd75247",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "de2bb3a939554553948db7de22632902",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 1
+        },
+        "observed_at": "2026-11-10T13:40:01.472020Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "03c17169d43f409b92e523f09b048d93",
+    "order_id": "de2bb3a939554553948db7de22632902",
+    "action": "escalate",
+    "summary": "AI investigation was unavailable or invalid; operator investigation is required.",
+    "evidence_ids": [
+      "63d12f846fce407597330d8fdcd75247"
+    ]
+  },
+  "execution": {
+    "decision_id": "03c17169d43f409b92e523f09b048d93",
+    "action": "escalate",
+    "status": "NOT_EXECUTED",
+    "message": "Escalated for operator investigation; no recovery performed."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": "CAP-SANDBOX-FAKE-1",
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 1,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "PASS"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "63d12f846fce407597330d8fdcd75247"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "decision",
+      "summary": "AI investigation was unavailable or invalid; operator investigation is required.",
+      "evidence_ids": [
+        "63d12f846fce407597330d8fdcd75247"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "execution",
+      "summary": "NOT_EXECUTED: Escalated for operator investigation; no recovery performed.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 5,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}
