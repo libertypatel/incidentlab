@@ -1,0 +1,1013 @@
+{
+  "label": "DEVELOPMENT RERUN / REAL AI / FAKE PAYMENTS / NO PAYPAL REQUESTS",
+  "method": "Development rerun after prompt tuning on observed v2 errors. Eight known conflict cases, one trial each, no retries. Not an unseen evaluation; original first-run results remain unchanged.",
+  "commit": "6554137676415885ea14aa60400280c999bb2f4e",
+  "source_sha256": {
+    "investigator.py": "2babb49e63087cef87f04c58f6a49d2d37cc0d237510b93be7757110335b9ea5",
+    "rules_controller.py": "60879a39087378fe46d4609c219cdb398340efab125f5111a06400cd66833139",
+    "evaluation.py": "422b6a65710339d142dbb76843d3dc06982f807a1a7df8597ea2a1b7604974b0",
+    "evidence_tools.py": "b15a6995d46cd633ffba0912a69ae0be903f121c3c07506d966520644a7b4a7a",
+    "run_integration.py": "a521541b5e8bdb80366b41e56aef86e87a5c308055486efaaa2e581957e3cd91",
+    "guarded_recovery.py": "6001262ff6cbf5752a99139ef286818a8dffbb1fae6aeeecfe87f7e27884d722",
+    "independent_verifier.py": "4bdc098ca3177f699a9e0774ecea358ef1125d6d52c6d5ed7844540c45553df4"
+  },
+  "runs": [
+    {
+      "family": "lost-confirmation",
+      "variation": "custom-id-mismatch",
+      "expected": "escalate",
+      "action": "escalate",
+      "execution": "NOT_EXECUTED",
+      "verification": "NOT_VERIFIED",
+      "seconds": 7.926,
+      "extra_capture_calls": 0,
+      "investigation_failed": false,
+      "failure_category": null,
+      "model_rounds": [
+        {
+          "round": 1,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_local_order"
+          ]
+        },
+        {
+          "round": 2,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_paypal_order"
+          ]
+        },
+        {
+          "round": 3,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_application_events"
+          ]
+        },
+        {
+          "round": 4,
+          "content_chars": 652,
+          "starts_with_json": true,
+          "tools": []
+        }
+      ],
+      "correct_action": true
+    },
+    {
+      "family": "lost-confirmation",
+      "variation": "multiple-captures",
+      "expected": "escalate",
+      "action": "escalate",
+      "execution": "NOT_EXECUTED",
+      "verification": "INCONCLUSIVE",
+      "seconds": 13.813,
+      "extra_capture_calls": 0,
+      "investigation_failed": false,
+      "failure_category": null,
+      "model_rounds": [
+        {
+          "round": 1,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_local_order"
+          ]
+        },
+        {
+          "round": 2,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_paypal_order"
+          ]
+        },
+        {
+          "round": 3,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_application_events"
+          ]
+        },
+        {
+          "round": 4,
+          "content_chars": 950,
+          "starts_with_json": true,
+          "tools": []
+        }
+      ],
+      "correct_action": true
+    },
+    {
+      "family": "lost-confirmation",
+      "variation": "refunded",
+      "expected": "escalate",
+      "action": "escalate",
+      "execution": "NOT_EXECUTED",
+      "verification": "NOT_VERIFIED",
+      "seconds": 29.762,
+      "extra_capture_calls": 0,
+      "investigation_failed": false,
+      "failure_category": null,
+      "model_rounds": [
+        {
+          "round": 1,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_local_order"
+          ]
+        },
+        {
+          "round": 2,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_paypal_order"
+          ]
+        },
+        {
+          "round": 3,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_application_events"
+          ]
+        },
+        {
+          "round": 4,
+          "content_chars": 741,
+          "starts_with_json": true,
+          "tools": []
+        }
+      ],
+      "correct_action": true
+    },
+    {
+      "family": "lost-confirmation",
+      "variation": "local-capture-conflict",
+      "expected": "escalate",
+      "action": "escalate",
+      "execution": "NOT_EXECUTED",
+      "verification": "NOT_VERIFIED",
+      "seconds": 10.472,
+      "extra_capture_calls": 0,
+      "investigation_failed": false,
+      "failure_category": null,
+      "model_rounds": [
+        {
+          "round": 1,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_local_order"
+          ]
+        },
+        {
+          "round": 2,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_paypal_order"
+          ]
+        },
+        {
+          "round": 3,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_application_events"
+          ]
+        },
+        {
+          "round": 4,
+          "content_chars": 773,
+          "starts_with_json": true,
+          "tools": []
+        }
+      ],
+      "correct_action": true
+    },
+    {
+      "family": "lost-confirmation",
+      "variation": "already-fulfilled",
+      "expected": "escalate",
+      "action": "escalate",
+      "execution": "NOT_EXECUTED",
+      "verification": "NOT_VERIFIED",
+      "seconds": 7.483,
+      "extra_capture_calls": 0,
+      "investigation_failed": false,
+      "failure_category": null,
+      "model_rounds": [
+        {
+          "round": 1,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_local_order"
+          ]
+        },
+        {
+          "round": 2,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_paypal_order"
+          ]
+        },
+        {
+          "round": 3,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_application_events"
+          ]
+        },
+        {
+          "round": 4,
+          "content_chars": 628,
+          "starts_with_json": true,
+          "tools": []
+        }
+      ],
+      "correct_action": true
+    },
+    {
+      "family": "before-submit",
+      "variation": "custom-id-mismatch",
+      "expected": "escalate",
+      "action": "escalate",
+      "execution": "NOT_EXECUTED",
+      "verification": "NOT_VERIFIED",
+      "seconds": 7.465,
+      "extra_capture_calls": 0,
+      "investigation_failed": false,
+      "failure_category": null,
+      "model_rounds": [
+        {
+          "round": 1,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_local_order"
+          ]
+        },
+        {
+          "round": 2,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_paypal_order"
+          ]
+        },
+        {
+          "round": 3,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_application_events"
+          ]
+        },
+        {
+          "round": 4,
+          "content_chars": 620,
+          "starts_with_json": true,
+          "tools": []
+        }
+      ],
+      "correct_action": true
+    },
+    {
+      "family": "before-submit",
+      "variation": "already-fulfilled",
+      "expected": "escalate",
+      "action": "escalate",
+      "execution": "NOT_EXECUTED",
+      "verification": "NOT_VERIFIED",
+      "seconds": 7.6,
+      "extra_capture_calls": 0,
+      "investigation_failed": false,
+      "failure_category": null,
+      "model_rounds": [
+        {
+          "round": 1,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_local_order"
+          ]
+        },
+        {
+          "round": 2,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_paypal_order"
+          ]
+        },
+        {
+          "round": 3,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_application_events"
+          ]
+        },
+        {
+          "round": 4,
+          "content_chars": 860,
+          "starts_with_json": true,
+          "tools": []
+        }
+      ],
+      "correct_action": true
+    },
+    {
+      "family": "before-submit",
+      "variation": "local-capture-conflict",
+      "expected": "escalate",
+      "action": "escalate",
+      "execution": "NOT_EXECUTED",
+      "verification": "NOT_VERIFIED",
+      "seconds": 8.954,
+      "extra_capture_calls": 0,
+      "investigation_failed": false,
+      "failure_category": null,
+      "model_rounds": [
+        {
+          "round": 1,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_local_order"
+          ]
+        },
+        {
+          "round": 2,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_paypal_order"
+          ]
+        },
+        {
+          "round": 3,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_application_events"
+          ]
+        },
+        {
+          "round": 4,
+          "content_chars": 848,
+          "starts_with_json": true,
+          "tools": []
+        }
+      ],
+      "correct_action": true
+    }
+  ],
+  "model_settings": {
+    "model": "nvidia/Nemotron-3_5-Lightning",
+    "endpoint_host": "api.tokenfactory.nebius.com",
+    "temperature": 0,
+    "max_tokens": 1400,
+    "final_max_tokens": 8192,
+    "timeout_seconds": 60,
+    "max_rounds": 5,
+    "max_tool_calls": 6,
+    "calls": 32,
+    "usage": [
+      {
+        "completion_tokens": 53,
+        "prompt_tokens": 1658,
+        "total_tokens": 1711,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1658
+      },
+      {
+        "completion_tokens": 55,
+        "prompt_tokens": 1908,
+        "total_tokens": 1963,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1908
+      },
+      {
+        "completion_tokens": 53,
+        "prompt_tokens": 2186,
+        "total_tokens": 2239,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2186
+      },
+      {
+        "completion_tokens": 1246,
+        "prompt_tokens": 1847,
+        "total_tokens": 3093,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 931,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1847
+      },
+      {
+        "completion_tokens": 53,
+        "prompt_tokens": 1659,
+        "total_tokens": 1712,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1659
+      },
+      {
+        "completion_tokens": 55,
+        "prompt_tokens": 1909,
+        "total_tokens": 1964,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1909
+      },
+      {
+        "completion_tokens": 53,
+        "prompt_tokens": 2258,
+        "total_tokens": 2311,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2258
+      },
+      {
+        "completion_tokens": 2467,
+        "prompt_tokens": 1921,
+        "total_tokens": 4388,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 2034,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1921
+      },
+      {
+        "completion_tokens": 51,
+        "prompt_tokens": 1648,
+        "total_tokens": 1699,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1648
+      },
+      {
+        "completion_tokens": 53,
+        "prompt_tokens": 1893,
+        "total_tokens": 1946,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1893
+      },
+      {
+        "completion_tokens": 51,
+        "prompt_tokens": 2190,
+        "total_tokens": 2241,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2190
+      },
+      {
+        "completion_tokens": 7537,
+        "prompt_tokens": 1856,
+        "total_tokens": 9393,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 7195,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1856
+      },
+      {
+        "completion_tokens": 56,
+        "prompt_tokens": 1669,
+        "total_tokens": 1725,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1669
+      },
+      {
+        "completion_tokens": 58,
+        "prompt_tokens": 1932,
+        "total_tokens": 1990,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1932
+      },
+      {
+        "completion_tokens": 56,
+        "prompt_tokens": 2242,
+        "total_tokens": 2298,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2242
+      },
+      {
+        "completion_tokens": 2026,
+        "prompt_tokens": 1904,
+        "total_tokens": 3930,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 1706,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1904
+      },
+      {
+        "completion_tokens": 54,
+        "prompt_tokens": 1661,
+        "total_tokens": 1715,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1661
+      },
+      {
+        "completion_tokens": 56,
+        "prompt_tokens": 1910,
+        "total_tokens": 1966,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1910
+      },
+      {
+        "completion_tokens": 54,
+        "prompt_tokens": 2214,
+        "total_tokens": 2268,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2214
+      },
+      {
+        "completion_tokens": 1129,
+        "prompt_tokens": 1878,
+        "total_tokens": 3007,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 874,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1878
+      },
+      {
+        "completion_tokens": 55,
+        "prompt_tokens": 1664,
+        "total_tokens": 1719,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1664
+      },
+      {
+        "completion_tokens": 57,
+        "prompt_tokens": 1918,
+        "total_tokens": 1975,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1918
+      },
+      {
+        "completion_tokens": 55,
+        "prompt_tokens": 2155,
+        "total_tokens": 2210,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2155
+      },
+      {
+        "completion_tokens": 1158,
+        "prompt_tokens": 1845,
+        "total_tokens": 3003,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 878,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1845
+      },
+      {
+        "completion_tokens": 54,
+        "prompt_tokens": 1662,
+        "total_tokens": 1716,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1662
+      },
+      {
+        "completion_tokens": 56,
+        "prompt_tokens": 1913,
+        "total_tokens": 1969,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1913
+      },
+      {
+        "completion_tokens": 54,
+        "prompt_tokens": 2174,
+        "total_tokens": 2228,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2174
+      },
+      {
+        "completion_tokens": 1449,
+        "prompt_tokens": 1868,
+        "total_tokens": 3317,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 1057,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1868
+      },
+      {
+        "completion_tokens": 53,
+        "prompt_tokens": 1658,
+        "total_tokens": 1711,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1658
+      },
+      {
+        "completion_tokens": 55,
+        "prompt_tokens": 1915,
+        "total_tokens": 1970,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1915
+      },
+      {
+        "completion_tokens": 53,
+        "prompt_tokens": 2174,
+        "total_tokens": 2227,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2174
+      },
+      {
+        "completion_tokens": 1736,
+        "prompt_tokens": 1867,
+        "total_tokens": 3603,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 1422,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1867
+      }
+    ],
+    "returned_models": [
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning"
+    ],
+    "responses": [
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "stop",
+        "phase": "proposal"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "stop",
+        "phase": "proposal"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "stop",
+        "phase": "proposal"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "stop",
+        "phase": "proposal"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "stop",
+        "phase": "proposal"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "stop",
+        "phase": "proposal"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "stop",
+        "phase": "proposal"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "stop",
+        "phase": "proposal"
+      }
+    ],
+    "final_output_format": "json_schema"
+  },
+  "summary": {
+    "n": 8,
+    "correct_actions_including_fallback": 8,
+    "correct_model_decisions": 8,
+    "fallback_escalations": 0,
+    "investigation_failures": 0,
+    "extra_capture_calls": 0,
+    "execution_counts": {
+      "NOT_EXECUTED": 8
+    }
+  }
+}

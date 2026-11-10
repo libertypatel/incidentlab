@@ -1,0 +1,161 @@
+{
+  "contract_version": "1.0",
+  "run_id": "1e54538a-e97b-4759-8c25-3433ed56b175",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "3e5fa02b2bc648f989cb3450317e71af",
+    "order_id": "6200695e40b94273baf8884521df9f24",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "0143a7971308494f82542d06d04cd9be",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "6200695e40b94273baf8884521df9f24",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T15:01:34.963213Z"
+      },
+      {
+        "evidence_id": "bd1a8601bdcd4f188f0ad284370606ac",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "APPROVED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "another-local-order",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": []
+        },
+        "observed_at": "2026-11-10T15:01:35.653981Z"
+      },
+      {
+        "evidence_id": "e917aa06515747fca3fb9712cbae7194",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": [
+            {
+              "event": "CAPTURE_NOT_SENT",
+              "message": "Matching durable capture journal is UNSENT with no capture_started record."
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T15:01:36.627300Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "3e5fa02b2bc648f989cb3450317e71af",
+    "action": "escalate",
+    "order_id": "6200695e40b94273baf8884521df9f24",
+    "summary": "Conflict gate 1 failed: purchase_unit.custom_id = 'another-local-order' does not match local.order_id = '6200695e40b94273baf8884521df9f24'. Provider order identity mismatch prevents any recovery action despite local payment_state=UNCONFIRMED and fulfillment_count=0. CAPTURE_NOT_SENT event and empty captures are secondary to this material identity conflict.",
+    "evidence_ids": [
+      "0143a7971308494f82542d06d04cd9be",
+      "bd1a8601bdcd4f188f0ad284370606ac",
+      "e917aa06515747fca3fb9712cbae7194"
+    ]
+  },
+  "execution": {
+    "decision_id": "3e5fa02b2bc648f989cb3450317e71af",
+    "action": "escalate",
+    "status": "NOT_EXECUTED",
+    "message": "Escalated for operator investigation; no recovery performed."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "FAIL"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "0143a7971308494f82542d06d04cd9be"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "bd1a8601bdcd4f188f0ad284370606ac"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "e917aa06515747fca3fb9712cbae7194"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Conflict gate 1 failed: purchase_unit.custom_id = 'another-local-order' does not match local.order_id = '6200695e40b94273baf8884521df9f24'. Provider order identity mismatch prevents any recovery action despite local payment_state=UNCONFIRMED and fulfillment_count=0. CAPTURE_NOT_SENT event and empty captures are secondary to this material identity conflict.",
+      "evidence_ids": [
+        "0143a7971308494f82542d06d04cd9be",
+        "bd1a8601bdcd4f188f0ad284370606ac",
+        "e917aa06515747fca3fb9712cbae7194"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "NOT_EXECUTED: Escalated for operator investigation; no recovery performed.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

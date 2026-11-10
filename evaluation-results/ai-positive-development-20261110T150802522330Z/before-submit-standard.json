@@ -1,0 +1,161 @@
+{
+  "contract_version": "1.0",
+  "run_id": "2b9979e4-af26-4c26-9d71-b9506c973a49",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "c69af48672c144b897b52951cbe3a84e",
+    "order_id": "b7cb8226db26471ba86f622bca72e936",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "65f3693e557546a499bc368988acc211",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "b7cb8226db26471ba86f622bca72e936",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T15:08:04.060343Z"
+      },
+      {
+        "evidence_id": "3d6f89188b97411b93f7504f5cdb3a1e",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "APPROVED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "b7cb8226db26471ba86f622bca72e936",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": []
+        },
+        "observed_at": "2026-11-10T15:08:05.204298Z"
+      },
+      {
+        "evidence_id": "d284b1e19a6248b9866724821d2c5725",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": [
+            {
+              "event": "CAPTURE_NOT_SENT",
+              "message": "Matching durable capture journal is UNSENT with no capture_started record."
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T15:08:06.056770Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "c69af48672c144b897b52951cbe3a84e",
+    "action": "capture_approved_order",
+    "order_id": "b7cb8226db26471ba86f622bca72e936",
+    "summary": "Provider order SANDBOX-FAKE-1 is APPROVED with matching custom_id b7cb8226db26471ba86f622bca72e936, USD amount 1.00, and no captures. Local order has payment_state UNCONFIRMED, fulfillment_count 0, and capture_id null. Application events show CAPTURE_NOT_SENT evidence confirming durable non-submission. All mandatory conflict gates pass: custom_id matches local order ID, payment state is UNCONFIRMED with zero fulfillments, and local capture_id is null consistent with capture_approved_order. Propose capture_approved_order requiring external operator approval.",
+    "evidence_ids": [
+      "65f3693e557546a499bc368988acc211",
+      "3d6f89188b97411b93f7504f5cdb3a1e",
+      "d284b1e19a6248b9866724821d2c5725"
+    ]
+  },
+  "execution": {
+    "decision_id": "c69af48672c144b897b52951cbe3a84e",
+    "action": "capture_approved_order",
+    "status": "SUCCEEDED",
+    "message": "Recovery executed; independent verification is required."
+  },
+  "verification": {
+    "status": "VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": "CAP-SANDBOX-FAKE-1",
+    "local_payment_state": "PAID",
+    "fulfillment_count": 1,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "PASS"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "PASS"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "65f3693e557546a499bc368988acc211"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "3d6f89188b97411b93f7504f5cdb3a1e"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "d284b1e19a6248b9866724821d2c5725"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Provider order SANDBOX-FAKE-1 is APPROVED with matching custom_id b7cb8226db26471ba86f622bca72e936, USD amount 1.00, and no captures. Local order has payment_state UNCONFIRMED, fulfillment_count 0, and capture_id null. Application events show CAPTURE_NOT_SENT evidence confirming durable non-submission. All mandatory conflict gates pass: custom_id matches local order ID, payment state is UNCONFIRMED with zero fulfillments, and local capture_id is null consistent with capture_approved_order. Propose capture_approved_order requiring external operator approval.",
+      "evidence_ids": [
+        "65f3693e557546a499bc368988acc211",
+        "3d6f89188b97411b93f7504f5cdb3a1e",
+        "d284b1e19a6248b9866724821d2c5725"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "SUCCEEDED: Recovery executed; independent verification is required.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

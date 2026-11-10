@@ -1,0 +1,161 @@
+{
+  "contract_version": "1.0",
+  "run_id": "79819564-9bd0-4ed4-8c31-9d8d229991a8",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "0be70d73a2de4608a443246c4966d274",
+    "order_id": "fafb2fc41e2941778e28ce896b05c982",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "4f2fa97a9cf14380a5b7ecb66f7691a0",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "fafb2fc41e2941778e28ce896b05c982",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 1
+        },
+        "observed_at": "2026-11-10T15:01:42.390941Z"
+      },
+      {
+        "evidence_id": "bf8c38ddf5bf4ab48da2e6dc63b66569",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "APPROVED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "fafb2fc41e2941778e28ce896b05c982",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": []
+        },
+        "observed_at": "2026-11-10T15:01:43.441856Z"
+      },
+      {
+        "evidence_id": "19c36cfa6ce942d299fdf06004053531",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": [
+            {
+              "event": "CAPTURE_NOT_SENT",
+              "message": "Matching durable capture journal is UNSENT with no capture_started record."
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T15:01:44.379076Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "0be70d73a2de4608a443246c4966d274",
+    "action": "escalate",
+    "order_id": "fafb2fc41e2941778e28ce896b05c982",
+    "summary": "Mandatory conflict gate 2 failed: local.fulfillment_count is 1, not 0. Local order evidence_id 4f2fa97a9cf14380a5b7ecb66f7691a0 shows fulfillment_count=1 while payment_state=UNCONFIRMED. Policy requires fulfillment_count==0 for UNCONFIRMED orders; existing fulfillment requires escalation even if unconfirmed. Provider order identity/amount/currency match (custom_id=fafb2fc41e2941778e28ce896b05c982, USD, 1.00), but fulfillment conflict overrides recovery. Application events evidence_id 19c36cfa6ce942d299fdf06004053531 shows CAPTURE_NOT_SENT, and capture_id is null, but gate 2 failure prevails.",
+    "evidence_ids": [
+      "4f2fa97a9cf14380a5b7ecb66f7691a0",
+      "bf8c38ddf5bf4ab48da2e6dc63b66569",
+      "19c36cfa6ce942d299fdf06004053531"
+    ]
+  },
+  "execution": {
+    "decision_id": "0be70d73a2de4608a443246c4966d274",
+    "action": "escalate",
+    "status": "NOT_EXECUTED",
+    "message": "Escalated for operator investigation; no recovery performed."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 1,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "FAIL"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "UNKNOWN"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "4f2fa97a9cf14380a5b7ecb66f7691a0"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "bf8c38ddf5bf4ab48da2e6dc63b66569"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "19c36cfa6ce942d299fdf06004053531"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Mandatory conflict gate 2 failed: local.fulfillment_count is 1, not 0. Local order evidence_id 4f2fa97a9cf14380a5b7ecb66f7691a0 shows fulfillment_count=1 while payment_state=UNCONFIRMED. Policy requires fulfillment_count==0 for UNCONFIRMED orders; existing fulfillment requires escalation even if unconfirmed. Provider order identity/amount/currency match (custom_id=fafb2fc41e2941778e28ce896b05c982, USD, 1.00), but fulfillment conflict overrides recovery. Application events evidence_id 19c36cfa6ce942d299fdf06004053531 shows CAPTURE_NOT_SENT, and capture_id is null, but gate 2 failure prevails.",
+      "evidence_ids": [
+        "4f2fa97a9cf14380a5b7ecb66f7691a0",
+        "bf8c38ddf5bf4ab48da2e6dc63b66569",
+        "19c36cfa6ce942d299fdf06004053531"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "NOT_EXECUTED: Escalated for operator investigation; no recovery performed.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}
