@@ -1,0 +1,161 @@
+{
+  "contract_version": "1.0",
+  "run_id": "c391a26e-e516-4fd6-8540-a5783b5983c8",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "89e1519a28be45eb810852a70c9d68d8",
+    "order_id": "7cf3035ed75940f7ab60e7c0cb12596c",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "6c80f37c4893471faa626de22087c2b7",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "7cf3035ed75940f7ab60e7c0cb12596c",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T15:00:25.914766Z"
+      },
+      {
+        "evidence_id": "8f8464cb1f6f4585b29afcd11ee0b991",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "COMPLETED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "another-local-order",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": [
+            {
+              "capture_id": "CAP-SANDBOX-FAKE-1",
+              "status": "COMPLETED",
+              "currency": "USD",
+              "amount": "1.00"
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T15:00:26.941659Z"
+      },
+      {
+        "evidence_id": "5dfcab0194a34dfa8f09651676dc4aca",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": []
+        },
+        "observed_at": "2026-11-10T15:00:27.932141Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "89e1519a28be45eb810852a70c9d68d8",
+    "action": "escalate",
+    "order_id": "7cf3035ed75940f7ab60e7c0cb12596c",
+    "summary": "Conflict gate 1 failed: purchase_unit.custom_id 'another-local-order' from provider order does not match local.order_id '7cf3035ed75940f7ab60e7c0cb12596c'. A matching provider_order_id does not make a different custom_id acceptable. local.payment_state is UNCONFIRMED and local.fulfillment_count is 0, but custom_id mismatch requires escalation. Evidence IDs: 6c80f37c4893471faa626de22087c2b7, 8f8464cb1f6f4585b29afcd11ee0b991",
+    "evidence_ids": [
+      "6c80f37c4893471faa626de22087c2b7",
+      "8f8464cb1f6f4585b29afcd11ee0b991"
+    ]
+  },
+  "execution": {
+    "decision_id": "89e1519a28be45eb810852a70c9d68d8",
+    "action": "escalate",
+    "status": "NOT_EXECUTED",
+    "message": "Escalated for operator investigation; no recovery performed."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": "CAP-SANDBOX-FAKE-1",
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "PASS"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "6c80f37c4893471faa626de22087c2b7"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "8f8464cb1f6f4585b29afcd11ee0b991"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "5dfcab0194a34dfa8f09651676dc4aca"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Conflict gate 1 failed: purchase_unit.custom_id 'another-local-order' from provider order does not match local.order_id '7cf3035ed75940f7ab60e7c0cb12596c'. A matching provider_order_id does not make a different custom_id acceptable. local.payment_state is UNCONFIRMED and local.fulfillment_count is 0, but custom_id mismatch requires escalation. Evidence IDs: 6c80f37c4893471faa626de22087c2b7, 8f8464cb1f6f4585b29afcd11ee0b991",
+      "evidence_ids": [
+        "6c80f37c4893471faa626de22087c2b7",
+        "8f8464cb1f6f4585b29afcd11ee0b991"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "NOT_EXECUTED: Escalated for operator investigation; no recovery performed.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

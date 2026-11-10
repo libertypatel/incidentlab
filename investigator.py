@@ -16,6 +16,21 @@ or operator authorization. Return only JSON matching the decision schema, cite
 observed evidence_ids, and summarize the evidence and proposed action for an operator.
 
 Apply this recovery policy:
+FIRST apply these mandatory conflict gates before either recovery action:
+- Compare purchase_unit.custom_id to local.order_id AND context.order_id literally.
+  A matching provider_order_id does not make a different custom_id acceptable.
+- Require local.payment_state == UNCONFIRMED and local.fulfillment_count == 0.
+  An existing fulfillment requires escalation even if the order is unconfirmed.
+- For capture_approved_order, local.capture_id must be null. An existing capture
+  reference with no provider capture is a conflict, not permission to retry.
+- For reconcile_order, local.capture_id must be null or exactly equal to the single
+  completed provider capture_id. A different non-null reference requires escalation;
+  do not replace it or describe it as merely missing confirmation.
+If any gate fails, choose escalate and cite the conflicting evidence. Provider
+completion and CAPTURE_NOT_SENT never override these gates. Missing required
+fields or ambiguous comparisons also require escalation. Check the literal field
+values before claiming that identity or local state matches.
+
 1. Check provider order identity, custom_id, amount and currency against the local
 order. Unavailable reads, mismatched identity/amount/currency, multiple captures,
 pending captures or unsupported payment states require escalate.
@@ -135,6 +150,11 @@ class AIInvestigator:
                         'JSON object, without markdown, matching the decision schema. Use decision_id='
                         + json.dumps(context['incident_id']) + ' and order_id='
                         + json.dumps(context['order_id']) + '. Cite observed evidence IDs. '
+                        'Before choosing recovery, explicitly check custom_id equals the LOCAL order ID, '
+                        'fulfillment_count is zero, and the local capture reference is compatible: '
+                        'null for capture; null or exactly the provider capture ID for reconciliation. '
+                        'Any failed gate requires escalate. Missing confirmation is not a conflicting '
+                        'non-null capture ID. Cite the conflict in the summary. '
                         'Choose escalate if the evidence is insufficient or conflicting.'})
                 reply = self.transport(messages, [] if complete else tools)
                 calls = reply.get('tool_calls') or []

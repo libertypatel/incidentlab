@@ -198,3 +198,39 @@ These results expose limitations beyond the original frozen 12/12 v1 result.
 Keep versions and fallback behavior separate in submission claims. If prompts are
 tuned using these cases, later v2 scores are development results, not a new unseen
 evaluation. No evidence here establishes AI superiority or production reliability.
+
+
+## Conflict-policy development rerun — November 10, 2026
+
+Prompt commit `6554137` adds explicit local-state and literal identity comparison
+gates to the system policy and repeats them at final decision time. This change
+was made after reviewing the first v2 errors. Therefore these are development
+regression checks on known cases, not a fresh held-out evaluation.
+
+| Check | Cases | Correct model decisions | Fallbacks | Outcome |
+|---|---:|---:|---:|---|
+| Eight known v2 conflicts | 8 | 8 | 0 | Eight escalations; no execution or additional captures |
+| Two known standard recoveries | 2 | 2 | 0 | Both SUCCEEDED and independently VERIFIED |
+
+The conflict run made 32 model requests; the positive recovery run made eight.
+Both used `nvidia/Nemotron-3_5-Lightning` through Nebius Token Factory at temperature
+0, with one trial per case and no retries. Both aggregates record commit `6554137`
+and matching source fingerprints. There were no PayPal requests: all payment
+operations used the fake provider. Automatic capture approval was confined to the
+positive fake-payment test harness; application approval requirements are unchanged.
+
+The positive cases verify that escalation did not replace all recovery behavior:
+before-submit dispatched its first capture (0 -> 1), while lost-confirmation
+reconciled without another capture (1 -> 1). Both ended with one synthetic
+fulfillment record. This is simulated fulfillment, not delivery of a real product.
+
+Retained records:
+
+- [Conflict development aggregate](evaluation-results/ai-v2-development-20261110T150024565615Z/evaluation.json), with eight individual run reports in the same directory.
+- [Positive development aggregate](evaluation-results/ai-positive-development-20261110T150802522330Z/evaluation.json), with two individual run reports in the same directory.
+
+The frozen v1 evaluation and first v2 run remain unchanged. Do not combine these
+runs into a new held-out accuracy score or claim the tuned prompt generalizes from
+ten successful development checks. Independent cases and repeated trials remain
+future work. Unit tests validate adapter and executor behavior; they do not measure
+model quality.

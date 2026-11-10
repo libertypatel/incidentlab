@@ -1,0 +1,294 @@
+{
+  "label": "POSITIVE DEVELOPMENT CHECK / REAL AI / FAKE PAYMENTS / TEST-HARNESS APPROVAL ONLY",
+  "method": "Two known standard recovery cases after prompt tuning, one trial each. Automatic capture approval is confined to the fake-payment harness. Development regression check, not an unseen evaluation.",
+  "commit": "6554137676415885ea14aa60400280c999bb2f4e",
+  "source_sha256": {
+    "investigator.py": "2babb49e63087cef87f04c58f6a49d2d37cc0d237510b93be7757110335b9ea5",
+    "rules_controller.py": "60879a39087378fe46d4609c219cdb398340efab125f5111a06400cd66833139",
+    "evaluation.py": "422b6a65710339d142dbb76843d3dc06982f807a1a7df8597ea2a1b7604974b0",
+    "evidence_tools.py": "b15a6995d46cd633ffba0912a69ae0be903f121c3c07506d966520644a7b4a7a",
+    "run_integration.py": "a521541b5e8bdb80366b41e56aef86e87a5c308055486efaaa2e581957e3cd91",
+    "guarded_recovery.py": "6001262ff6cbf5752a99139ef286818a8dffbb1fae6aeeecfe87f7e27884d722",
+    "independent_verifier.py": "4bdc098ca3177f699a9e0774ecea358ef1125d6d52c6d5ed7844540c45553df4"
+  },
+  "runs": [
+    {
+      "family": "before-submit",
+      "variation": "standard",
+      "expected": "capture_approved_order",
+      "captures_before": 0,
+      "action": "capture_approved_order",
+      "execution": "SUCCEEDED",
+      "verification": "VERIFIED",
+      "fulfillment_count": 1,
+      "seconds": 9.794,
+      "captures_after": 1,
+      "extra_capture_calls": 1,
+      "investigation_failed": false,
+      "failure_category": null,
+      "model_rounds": [
+        {
+          "round": 1,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_local_order"
+          ]
+        },
+        {
+          "round": 2,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_paypal_order"
+          ]
+        },
+        {
+          "round": 3,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_application_events"
+          ]
+        },
+        {
+          "round": 4,
+          "content_chars": 839,
+          "starts_with_json": true,
+          "tools": []
+        }
+      ],
+      "correct_action": true,
+      "recovery_passed": true
+    },
+    {
+      "family": "lost-confirmation",
+      "variation": "standard",
+      "expected": "reconcile_order",
+      "captures_before": 1,
+      "action": "reconcile_order",
+      "execution": "SUCCEEDED",
+      "verification": "VERIFIED",
+      "fulfillment_count": 1,
+      "seconds": 13.711,
+      "captures_after": 1,
+      "extra_capture_calls": 0,
+      "investigation_failed": false,
+      "failure_category": null,
+      "model_rounds": [
+        {
+          "round": 1,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_local_order"
+          ]
+        },
+        {
+          "round": 2,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_paypal_order"
+          ]
+        },
+        {
+          "round": 3,
+          "content_chars": 0,
+          "starts_with_json": false,
+          "tools": [
+            "get_application_events"
+          ]
+        },
+        {
+          "round": 4,
+          "content_chars": 783,
+          "starts_with_json": true,
+          "tools": []
+        }
+      ],
+      "correct_action": true,
+      "recovery_passed": true
+    }
+  ],
+  "model_settings": {
+    "model": "nvidia/Nemotron-3_5-Lightning",
+    "endpoint_host": "api.tokenfactory.nebius.com",
+    "temperature": 0,
+    "max_tokens": 1400,
+    "final_max_tokens": 8192,
+    "timeout_seconds": 60,
+    "max_rounds": 5,
+    "max_tool_calls": 6,
+    "calls": 8,
+    "usage": [
+      {
+        "completion_tokens": 53,
+        "prompt_tokens": 1658,
+        "total_tokens": 1711,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1658
+      },
+      {
+        "completion_tokens": 55,
+        "prompt_tokens": 1907,
+        "total_tokens": 1962,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1907
+      },
+      {
+        "completion_tokens": 53,
+        "prompt_tokens": 2171,
+        "total_tokens": 2224,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2171
+      },
+      {
+        "completion_tokens": 1467,
+        "prompt_tokens": 1869,
+        "total_tokens": 3336,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 1126,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1869
+      },
+      {
+        "completion_tokens": 53,
+        "prompt_tokens": 1658,
+        "total_tokens": 1711,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1658
+      },
+      {
+        "completion_tokens": 55,
+        "prompt_tokens": 1907,
+        "total_tokens": 1962,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1907
+      },
+      {
+        "completion_tokens": 53,
+        "prompt_tokens": 2213,
+        "total_tokens": 2266,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 2213
+      },
+      {
+        "completion_tokens": 1964,
+        "prompt_tokens": 1874,
+        "total_tokens": 3838,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 1640,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": null,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1874
+      }
+    ],
+    "returned_models": [
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning",
+      "nvidia/Nemotron-3_5-Lightning"
+    ],
+    "responses": [
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "stop",
+        "phase": "proposal"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "tool_calls",
+        "phase": "diagnostics"
+      },
+      {
+        "finish_reason": "stop",
+        "phase": "proposal"
+      }
+    ],
+    "final_output_format": "json_schema"
+  },
+  "summary": {
+    "n": 2,
+    "correct_model_decisions": 2,
+    "verified_recoveries": 2,
+    "investigation_failures": 0,
+    "extra_capture_calls": 1,
+    "execution_counts": {
+      "SUCCEEDED": 2
+    }
+  }
+}

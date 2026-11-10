@@ -1,0 +1,163 @@
+{
+  "contract_version": "1.0",
+  "run_id": "8215a021-d517-4e9d-93ec-1f5c3c8dc98b",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "b4865f480d6e4d92af2d7d4d0fee74e3",
+    "order_id": "5f814a6895e44130851e6830df0d5921",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "7f510f68a4794eb38eb7733af21efc81",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "5f814a6895e44130851e6830df0d5921",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": "CONFLICTING-CAPTURE",
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T15:01:17.354774Z"
+      },
+      {
+        "evidence_id": "11ef0576cd1149b9890c0ac601e39962",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "COMPLETED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "5f814a6895e44130851e6830df0d5921",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": [
+            {
+              "capture_id": "CAP-SANDBOX-FAKE-1",
+              "status": "COMPLETED",
+              "currency": "USD",
+              "amount": "1.00"
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T15:01:18.197945Z"
+      },
+      {
+        "evidence_id": "9f236e649b174b2d865005fc65a2f0d0",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": []
+        },
+        "observed_at": "2026-11-10T15:01:18.865321Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "b4865f480d6e4d92af2d7d4d0fee74e3",
+    "action": "escalate",
+    "order_id": "5f814a6895e44130851e6830df0d5921",
+    "summary": "Local capture_id 'CONFLICTING-CAPTURE' is non-null and does not match provider capture_id 'CAP-SANDBOX-FAKE-1', violating the reconcile_order gate requirement that local.capture_id must be null or exactly equal to the single completed provider capture_id. This is a material conflict about capture outcome identity, not a missing confirmation. custom_id '5f814a6895e44130851e6830df0d5921' matches local.order_id, and fulfillment_count is 0, but the incompatible capture reference prevents both recovery actions.",
+    "evidence_ids": [
+      "7f510f68a4794eb38eb7733af21efc81",
+      "11ef0576cd1149b9890c0ac601e39962",
+      "9f236e649b174b2d865005fc65a2f0d0"
+    ]
+  },
+  "execution": {
+    "decision_id": "b4865f480d6e4d92af2d7d4d0fee74e3",
+    "action": "escalate",
+    "status": "NOT_EXECUTED",
+    "message": "Escalated for operator investigation; no recovery performed."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": "CAP-SANDBOX-FAKE-1",
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "PASS"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "7f510f68a4794eb38eb7733af21efc81"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "11ef0576cd1149b9890c0ac601e39962"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "9f236e649b174b2d865005fc65a2f0d0"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Local capture_id 'CONFLICTING-CAPTURE' is non-null and does not match provider capture_id 'CAP-SANDBOX-FAKE-1', violating the reconcile_order gate requirement that local.capture_id must be null or exactly equal to the single completed provider capture_id. This is a material conflict about capture outcome identity, not a missing confirmation. custom_id '5f814a6895e44130851e6830df0d5921' matches local.order_id, and fulfillment_count is 0, but the incompatible capture reference prevents both recovery actions.",
+      "evidence_ids": [
+        "7f510f68a4794eb38eb7733af21efc81",
+        "11ef0576cd1149b9890c0ac601e39962",
+        "9f236e649b174b2d865005fc65a2f0d0"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "NOT_EXECUTED: Escalated for operator investigation; no recovery performed.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

@@ -12,6 +12,12 @@ escalations, one fallback escalation after a model-request HTTP error, and five
 incorrect recovery proposals blocked by the executor. No additional captures were
 dispatched. The first v2 run is retained separately; see [EVALUATION.md](EVALUATION.md).
 
+After clarifying mandatory conflict checks, a **development rerun** on the same
+eight known conflict cases produced 8/8 correct model escalations with no fallbacks.
+The same prompt also recovered both known valid cases with independent verification:
+capture 0 -> 1 and reconcile 1 -> 1, each with one synthetic fulfillment. These tuned
+checks are not new held-out results; the original failures remain preserved.
+
 Two customers see the same checkout error. One capture was never submitted; the
 other completed but local confirmation was lost. IncidentLab investigates the
 payment evidence and proposes a bounded recovery.

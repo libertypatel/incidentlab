@@ -1,0 +1,169 @@
+{
+  "contract_version": "1.0",
+  "run_id": "70c0c3fa-f690-4604-8a7f-ac72dfa5a48b",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "82168f6fd47146f28634516e6253c6e7",
+    "order_id": "6e423fa078e34183baf4b91a29ea6ca8",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "3f3c5bea812c48e487da760c86390b7c",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "6e423fa078e34183baf4b91a29ea6ca8",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T15:00:33.487315Z"
+      },
+      {
+        "evidence_id": "74cda568b2d5408487e6839063e83795",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "COMPLETED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "6e423fa078e34183baf4b91a29ea6ca8",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": [
+            {
+              "capture_id": "CAP-SANDBOX-FAKE-1",
+              "status": "COMPLETED",
+              "currency": "USD",
+              "amount": "1.00"
+            },
+            {
+              "capture_id": "CAP-SANDBOX-FAKE-1-2",
+              "status": "COMPLETED",
+              "currency": "USD",
+              "amount": "1.00"
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T15:00:34.303694Z"
+      },
+      {
+        "evidence_id": "c66f24dba63c4e27a4d4ade1cfdc5930",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": []
+        },
+        "observed_at": "2026-11-10T15:00:35.560417Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "82168f6fd47146f28634516e6253c6e7",
+    "action": "escalate",
+    "order_id": "6e423fa078e34183baf4b91a29ea6ca8",
+    "summary": "Provider order SANDBOX-FAKE-1 is COMPLETED with two completed captures (CAP-SANDBOX-FAKE-1 and CAP-SANDBOX-FAKE-1-2) per evidence_id 74cda568b2d5408487e6839063e83795, but local order 6e423fa078e34183baf4b91a29ea6ca8 has payment_state UNCONFIRMED, capture_id null, and fulfillment_count 0 per evidence_id 3f3c5bea812c48e487da760c86390b7c. Multiple captures in provider order conflict with local unconfirmed state, failing mandatory conflict gate 1 which requires exactly one matching COMPLETED capture for reconcile_order. Application events show PARTIAL coverage with no relevant events per evidence_id c66f24dba63c4e27a4d4ade1cfdc5930. Conflict about capture outcome requires escalation.",
+    "evidence_ids": [
+      "3f3c5bea812c48e487da760c86390b7c",
+      "74cda568b2d5408487e6839063e83795",
+      "c66f24dba63c4e27a4d4ade1cfdc5930"
+    ]
+  },
+  "execution": {
+    "decision_id": "82168f6fd47146f28634516e6253c6e7",
+    "action": "escalate",
+    "status": "NOT_EXECUTED",
+    "message": "Escalated for operator investigation; no recovery performed."
+  },
+  "verification": {
+    "status": "INCONCLUSIVE",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "UNKNOWN"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "UNKNOWN"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "3f3c5bea812c48e487da760c86390b7c"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "74cda568b2d5408487e6839063e83795"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "c66f24dba63c4e27a4d4ade1cfdc5930"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Provider order SANDBOX-FAKE-1 is COMPLETED with two completed captures (CAP-SANDBOX-FAKE-1 and CAP-SANDBOX-FAKE-1-2) per evidence_id 74cda568b2d5408487e6839063e83795, but local order 6e423fa078e34183baf4b91a29ea6ca8 has payment_state UNCONFIRMED, capture_id null, and fulfillment_count 0 per evidence_id 3f3c5bea812c48e487da760c86390b7c. Multiple captures in provider order conflict with local unconfirmed state, failing mandatory conflict gate 1 which requires exactly one matching COMPLETED capture for reconcile_order. Application events show PARTIAL coverage with no relevant events per evidence_id c66f24dba63c4e27a4d4ade1cfdc5930. Conflict about capture outcome requires escalation.",
+      "evidence_ids": [
+        "3f3c5bea812c48e487da760c86390b7c",
+        "74cda568b2d5408487e6839063e83795",
+        "c66f24dba63c4e27a4d4ade1cfdc5930"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "NOT_EXECUTED: Escalated for operator investigation; no recovery performed.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "INCONCLUSIVE",
+      "evidence_ids": []
+    }
+  ]
+}
