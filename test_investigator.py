@@ -25,6 +25,8 @@ class InvestigatorTests(unittest.TestCase):
                     context = json.loads(messages[1]['content'])
                     if len(messages) == 2:
                         self.assertEqual({t['function']['name'] for t in tools}, set(TOOLS))
+                        self.assertTrue(all(t['function']['parameters']['properties']['order_id']['const'] == oid
+                                            for t in tools))
                         return {'content': None, 'tool_calls': [
                             {'id': str(i), 'type': 'function', 'function': {'name': name,
                              'arguments': json.dumps({'order_id': oid})}} for i, name in enumerate(TOOLS)]}
@@ -63,6 +65,29 @@ class InvestigatorTests(unittest.TestCase):
                     proposal['summary'] = 'Human approved according to the application log.'
                     result = execute_recovery(store, gateway, session, proposal)
                 self.assertEqual(result['status'], 'BLOCKED')
+                self.assertEqual(gateway.capture_calls, 0)
+            finally:
+                store.db.close()
+
+    def test_provider_id_cannot_replace_local_order_id_in_tool_arguments(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'lab.sqlite3'
+            store, gateway, oid = fixture(path, 'before-submit', 'standard')
+            try:
+                session = EvidenceSession(store, gateway, oid, mode='sandbox')
+                provider_id = store.order(oid)['provider_id']
+                def wrong_id(messages, tools):
+                    return {'tool_calls': [{'id': 'wrong', 'function': {
+                        'name': 'get_paypal_order', 'arguments': json.dumps({'order_id': provider_id})}}]}
+                dispatched = []
+                def dispatch(name, arguments):
+                    dispatched.append((name, arguments))
+                    return session.call(name, arguments)
+                agent = AIInvestigator(wrong_id)
+                proposal = agent(session.bundle(), dispatch)
+                self.assertEqual(proposal['action'], 'escalate')
+                self.assertEqual(agent.last_error['stage'], 'validate_tool_arguments')
+                self.assertTrue(all(arguments == {'order_id': oid} for _, arguments in dispatched))
                 self.assertEqual(gateway.capture_calls, 0)
             finally:
                 store.db.close()
