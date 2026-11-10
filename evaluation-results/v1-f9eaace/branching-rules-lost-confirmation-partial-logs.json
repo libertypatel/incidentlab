@@ -1,0 +1,163 @@
+{
+  "contract_version": "1.0",
+  "run_id": "5b7ccfa9-4988-4dca-bd81-a4e8f8844b1d",
+  "controller": "rules",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "a0f1f6f3251e4ad68210e8d488e0151a",
+    "order_id": "c22b723f15894912a6ed1134fb36afec",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "c181e1df786c429691c0a4bd88ce31ba",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "c22b723f15894912a6ed1134fb36afec",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:39:48.354566Z"
+      },
+      {
+        "evidence_id": "c570c5d315ab4f84be7004a2daab3ec1",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "COMPLETED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "c22b723f15894912a6ed1134fb36afec",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": [
+            {
+              "capture_id": "CAP-SANDBOX-FAKE-1",
+              "status": "COMPLETED",
+              "currency": "USD",
+              "amount": "1.00"
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T04:39:48.354696Z"
+      },
+      {
+        "evidence_id": "746972ca522d41aa89f04a91095b136f",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": []
+        },
+        "observed_at": "2026-11-10T04:39:48.354837Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "a0f1f6f3251e4ad68210e8d488e0151a",
+    "order_id": "c22b723f15894912a6ed1134fb36afec",
+    "action": "reconcile_order",
+    "summary": "One matching completed capture exists; reconcile local state without capturing again.",
+    "evidence_ids": [
+      "c181e1df786c429691c0a4bd88ce31ba",
+      "c570c5d315ab4f84be7004a2daab3ec1",
+      "746972ca522d41aa89f04a91095b136f"
+    ]
+  },
+  "execution": {
+    "decision_id": "a0f1f6f3251e4ad68210e8d488e0151a",
+    "action": "reconcile_order",
+    "status": "SUCCEEDED",
+    "message": "Recovery executed; independent verification is required."
+  },
+  "verification": {
+    "status": "VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": "CAP-SANDBOX-FAKE-1",
+    "local_payment_state": "PAID",
+    "fulfillment_count": 1,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "PASS"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "PASS"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "c181e1df786c429691c0a4bd88ce31ba"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "c570c5d315ab4f84be7004a2daab3ec1"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "746972ca522d41aa89f04a91095b136f"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "One matching completed capture exists; reconcile local state without capturing again.",
+      "evidence_ids": [
+        "c181e1df786c429691c0a4bd88ce31ba",
+        "c570c5d315ab4f84be7004a2daab3ec1",
+        "746972ca522d41aa89f04a91095b136f"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "SUCCEEDED: Recovery executed; independent verification is required.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

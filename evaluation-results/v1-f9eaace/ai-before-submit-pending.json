@@ -1,0 +1,163 @@
+{
+  "contract_version": "1.0",
+  "run_id": "c8c602f0-6b3e-488c-b4c7-800a3d3876de",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "66d9290a2a994973932cca4dc5e18c4c",
+    "order_id": "5ed832a80e8e4db7840546e8c4b52d0f",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "c83f18bb9f594b1fbaffe8f72cab1501",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "5ed832a80e8e4db7840546e8c4b52d0f",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:40:02.524080Z"
+      },
+      {
+        "evidence_id": "7ae46aad28f848feb593cff2f12b1df6",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "COMPLETED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "5ed832a80e8e4db7840546e8c4b52d0f",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": [
+            {
+              "capture_id": "CAP-SANDBOX-FAKE-1",
+              "status": "PENDING",
+              "currency": "USD",
+              "amount": "1.00"
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T04:40:02.524490Z"
+      },
+      {
+        "evidence_id": "825632629e3b48a5b1c6793f7bdc417d",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": []
+        },
+        "observed_at": "2026-11-10T04:40:02.524957Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "66d9290a2a994973932cca4dc5e18c4c",
+    "action": "escalate",
+    "order_id": "5ed832a80e8e4db7840546e8c4b52d0f",
+    "summary": "Provider order SANDBOX-FAKE-1 is COMPLETED with identity/amount/currency matching local order (USD 1.00, custom_id 5ed832a80e8e4db7840546e8c4b52d0f), but contains a single PENDING capture (CAP-SANDBOX-FAKE-1). Local order payment_state is UNCONFIRMED with no capture_id. Application events show PARTIAL coverage with no relevant events. Per recovery policy step 1, pending captures require escalation.",
+    "evidence_ids": [
+      "c83f18bb9f594b1fbaffe8f72cab1501",
+      "7ae46aad28f848feb593cff2f12b1df6",
+      "825632629e3b48a5b1c6793f7bdc417d"
+    ]
+  },
+  "execution": {
+    "decision_id": "66d9290a2a994973932cca4dc5e18c4c",
+    "action": "escalate",
+    "status": "NOT_EXECUTED",
+    "message": "Escalated for operator investigation; no recovery performed."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "FAIL"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "c83f18bb9f594b1fbaffe8f72cab1501"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "7ae46aad28f848feb593cff2f12b1df6"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "825632629e3b48a5b1c6793f7bdc417d"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Provider order SANDBOX-FAKE-1 is COMPLETED with identity/amount/currency matching local order (USD 1.00, custom_id 5ed832a80e8e4db7840546e8c4b52d0f), but contains a single PENDING capture (CAP-SANDBOX-FAKE-1). Local order payment_state is UNCONFIRMED with no capture_id. Application events show PARTIAL coverage with no relevant events. Per recovery policy step 1, pending captures require escalation.",
+      "evidence_ids": [
+        "c83f18bb9f594b1fbaffe8f72cab1501",
+        "7ae46aad28f848feb593cff2f12b1df6",
+        "825632629e3b48a5b1c6793f7bdc417d"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "NOT_EXECUTED: Escalated for operator investigation; no recovery performed.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

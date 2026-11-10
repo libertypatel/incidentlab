@@ -1,0 +1,163 @@
+{
+  "contract_version": "1.0",
+  "run_id": "0054e556-3d51-4ed8-8791-4e2ac54fee8c",
+  "controller": "rules",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "463fac875d88430ba50df6d04445ffad",
+    "order_id": "641ce7f74fcc4cb088d9348e5d31d7ce",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "14a408bcb21f4b7fbc9d79c3fce6bff8",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "641ce7f74fcc4cb088d9348e5d31d7ce",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:39:47.780887Z"
+      },
+      {
+        "evidence_id": "129f3d694503431a9e8113b0f6723f71",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "COMPLETED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "641ce7f74fcc4cb088d9348e5d31d7ce",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": [
+            {
+              "capture_id": "CAP-SANDBOX-FAKE-1",
+              "status": "PENDING",
+              "currency": "USD",
+              "amount": "1.00"
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T04:39:47.781035Z"
+      },
+      {
+        "evidence_id": "d12c02a7da0744c2a088683a125cf042",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": []
+        },
+        "observed_at": "2026-11-10T04:39:47.781204Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "463fac875d88430ba50df6d04445ffad",
+    "order_id": "641ce7f74fcc4cb088d9348e5d31d7ce",
+    "action": "capture_approved_order",
+    "summary": "Naive baseline: retry capture for every checkout error.",
+    "evidence_ids": [
+      "14a408bcb21f4b7fbc9d79c3fce6bff8",
+      "129f3d694503431a9e8113b0f6723f71",
+      "d12c02a7da0744c2a088683a125cf042"
+    ]
+  },
+  "execution": {
+    "decision_id": "463fac875d88430ba50df6d04445ffad",
+    "action": "capture_approved_order",
+    "status": "BLOCKED",
+    "message": "Capture requires fresh buyer approval and no existing captures."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "FAIL"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "14a408bcb21f4b7fbc9d79c3fce6bff8"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "129f3d694503431a9e8113b0f6723f71"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "d12c02a7da0744c2a088683a125cf042"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Naive baseline: retry capture for every checkout error.",
+      "evidence_ids": [
+        "14a408bcb21f4b7fbc9d79c3fce6bff8",
+        "129f3d694503431a9e8113b0f6723f71",
+        "d12c02a7da0744c2a088683a125cf042"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "BLOCKED: Capture requires fresh buyer approval and no existing captures.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

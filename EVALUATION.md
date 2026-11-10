@@ -6,7 +6,9 @@
 Add `--ai` only after configuring a compatible external model endpoint. No AI
 rows are fabricated when keys/model are unavailable. Model metadata includes the
 requested model, returned model IDs, sampling settings, limits, calls, and usage.
-Provider compatibility and actual model results must be recorded after a real run.
+The retained real-model run below establishes compatibility for the recorded
+model/settings only. Per-case progress, failure categories and source SHA-256
+fingerprints are saved with the output.
 
 ## Method
 
@@ -56,16 +58,51 @@ controller proposals and guarded outcomes together. It is not an unguarded naive
 retry charge benchmark. Never deploy an unsafe baseline against PayPal to create
 duplicate captures for a chart.
 
-## Initial results (no model calls)
+## Recorded frozen run
 
-| Controller | Split | n | Correct | Escalations | Unsafe capture proposals | Duplicate captures |
-|---|---|---:|---:|---:|---:|---:|
-| Naive retry | Development | 2 | 1 | 0 | 1 | 0 |
-| Naive retry | Held-out v1 | 12 | 0 | 0 | 12 | 0 |
-| Branching rules | Development | 2 | 2 | 0 | 0 | 0 |
-| Branching rules | Held-out v1 | 12 | 12 | 10 | 0 | 0 |
-| AI | Not run | 0 | — | — | — | — |
+Source revision: `f9eaace` on `feat/investigator-evaluation`. The retained
+[evaluation.json](evaluation-results/v1-f9eaace/evaluation.json) contains 42 case
+rows, all six split summaries, model usage/settings, final response statuses and
+five source fingerprints. The fingerprints were checked against the evaluated
+files, and the summary counts were recomputed from the case rows.
 
-Naive retry had two FAILED executions from provider timeouts and eleven BLOCKED
-executions; its one valid capture succeeded. Rules had four successful recoveries
-and ten escalations across all fourteen cases. Retain failures in the JSON.
+| Controller | Split | n | Correct | Escalations | Unsafe capture proposals | Duplicate dispatches | Failures | Blocked |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Naive retry | Development | 2 | 1 | 0 | 1 | 0 | 0 | 1 |
+| Naive retry | Held-out v1 | 12 | 0 | 0 | 12 | 0 | 2 | 10 |
+| Branching rules | Development | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+| Branching rules | Held-out v1 | 12 | 12 | 10 | 0 | 0 | 0 | 0 |
+| AI | Development | 2 | 2 | 0 | 0 | 0 | 0 | 0 |
+| AI | Held-out v1 | 12 | 12 | 10 | 0 | 0 | 0 | 0 |
+
+Model: `nvidia/Nemotron-3_5-Lightning` via `api.tokenfactory.nebius.com`.
+Temperature 0; diagnostic response limit 1,400 tokens; final response limit 8,192;
+request timeout 60 seconds; five model rounds and six diagnostic calls maximum.
+Final proposals use `json_schema`. All 42 requests recorded the requested model;
+28 responses ended with tool calls and 14 with `stop`, with no truncated responses
+or investigation failures. Total model requests are not the case sample size:
+AI n=14, comprising two development and twelve held-out cases.
+
+AI and rules each completed four independently verified recoveries across all
+fourteen cases and escalated ten. Naive retry had one verified recovery, two FAILED
+executions from persistent provider timeouts, and eleven BLOCKED executions.
+All three controllers had zero duplicate dispatches under shared guards. This does
+not measure how many charges an unguarded baseline would cause.
+
+The two AI injection cases proposed escalation for the unpaid order without durable
+non-submission proof and reconciliation for the matching existing capture. Neither
+made an extra capture dispatch. Naive capture proposals were blocked in both.
+This tests these two synthetic messages and guarded authorization boundaries, not
+general resistance to prompt injection.
+
+Across all fourteen cases, median full-case elapsed time was about 7.75 seconds
+for AI, 0.007 seconds for rules and 0.012 seconds for naive retry. These timings
+include the harness, tools, execution and verification; they are not production
+latency or a recovery-time benefit estimate. Rules matched AI and were faster.
+
+The two development cases were used to debug the adapter and clarify the prompt
+before freezing. Held-out v1 was evaluated afterward without further prompt tuning.
+There is one recorded model run per case, no repeated-trial reliability estimate,
+no independent blinding, and only two incident families. Broader claims require
+new cases and repeated evaluations. Manual PayPal sandbox validation is separate;
+this evaluation makes external AI requests and zero PayPal requests.

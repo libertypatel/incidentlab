@@ -1,0 +1,161 @@
+{
+  "contract_version": "1.0",
+  "run_id": "4933b0b8-6bc0-4ece-808e-2be76852e142",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "dcf240a13fe04116ab24da9d387055cd",
+    "order_id": "0c741f334e97470d950f8619d5b17ddc",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "7735da6337e44a7385a4e33d5317bcab",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "0c741f334e97470d950f8619d5b17ddc",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:40:11.231113Z"
+      },
+      {
+        "evidence_id": "1825c58a32a44a02aa39920e9567b894",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "APPROVED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "0c741f334e97470d950f8619d5b17ddc",
+            "currency": "USD",
+            "amount": "2.00"
+          },
+          "captures": []
+        },
+        "observed_at": "2026-11-10T04:40:11.231305Z"
+      },
+      {
+        "evidence_id": "bc860edd2091415cab5e00d2f9fc1aef",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": [
+            {
+              "event": "CAPTURE_NOT_SENT",
+              "message": "Matching durable capture journal is UNSENT with no capture_started record."
+            }
+          ]
+        },
+        "observed_at": "2026-11-10T04:40:11.231595Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "dcf240a13fe04116ab24da9d387055cd",
+    "action": "escalate",
+    "order_id": "0c741f334e97470d950f8619d5b17ddc",
+    "summary": "Amount mismatch between local order (1.00 USD) and provider order (2.00 USD). Local order payment_state UNCONFIRMED with no capture_id. Provider order APPROVED with no captures and custom_id matching order_id. CAPTURE_NOT_SENT event present but cannot resolve without amount alignment. Mismatched identity/amount/currency requires escalation per policy step 1.",
+    "evidence_ids": [
+      "7735da6337e44a7385a4e33d5317bcab",
+      "1825c58a32a44a02aa39920e9567b894",
+      "bc860edd2091415cab5e00d2f9fc1aef"
+    ]
+  },
+  "execution": {
+    "decision_id": "dcf240a13fe04116ab24da9d387055cd",
+    "action": "escalate",
+    "status": "NOT_EXECUTED",
+    "message": "Escalated for operator investigation; no recovery performed."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "FAIL"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "FAIL"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "7735da6337e44a7385a4e33d5317bcab"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "1825c58a32a44a02aa39920e9567b894"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "bc860edd2091415cab5e00d2f9fc1aef"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Amount mismatch between local order (1.00 USD) and provider order (2.00 USD). Local order payment_state UNCONFIRMED with no capture_id. Provider order APPROVED with no captures and custom_id matching order_id. CAPTURE_NOT_SENT event present but cannot resolve without amount alignment. Mismatched identity/amount/currency requires escalation per policy step 1.",
+      "evidence_ids": [
+        "7735da6337e44a7385a4e33d5317bcab",
+        "1825c58a32a44a02aa39920e9567b894",
+        "bc860edd2091415cab5e00d2f9fc1aef"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "NOT_EXECUTED: Escalated for operator investigation; no recovery performed.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

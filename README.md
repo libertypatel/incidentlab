@@ -1,9 +1,11 @@
 # IncidentLab — AI Incident Investigation and Verified Recovery
 
-**Manual PayPal sandbox validation restored a paid order after deliberately lost
-local confirmation, with one capture and one fulfillment record.** All five
-independent verification checks passed. This is sandbox evidence, not a production
-reliability or AI performance claim.
+**In one frozen fake-provider evaluation, the AI selected all 12 held-out actions
+correctly, matching branching rules, with zero duplicate capture dispatches.**
+The two development cases also passed. Separately, manual PayPal sandbox recovery
+restored a paid order after deliberately lost local confirmation, with one capture,
+one fulfillment record, and all five independent checks passing. These are small
+prototype results, not production reliability evidence.
 
 Two customers see the same checkout error. One capture was never submitted; the
 other completed but local confirmation was lost. IncidentLab investigates the
@@ -59,9 +61,13 @@ INCIDENTLAB_LLM_KEY=YOUR_KEY
 ```
 
 The provider must support this tool-call protocol and the documented settings.
-No compatibility with a particular model has been established yet. The adapter
-uses temperature 0, max_tokens 1400, 30-second request timeout, at most five
-rounds and six diagnostic calls. Malformed/unavailable responses escalate.
+The recorded run used Nebius Token Factory with `nvidia/Nemotron-3_5-Lightning`.
+The adapter uses temperature 0, a 1,400-token diagnostic response budget, an
+8,192-token final response budget, a 60-second request timeout, at most five
+rounds and six diagnostic calls. After all three tools return, the final turn
+uses schema-constrained JSON with tools disabled. Malformed, truncated or
+unavailable responses escalate. Other providers must support the same protocol
+and final JSON schema format.
 Credentials, approval tokens, and raw provider errors are not model inputs.
 
 To investigate an existing guarded sandbox order (requires local sandbox PayPal
@@ -86,21 +92,36 @@ python3 evaluation.py
 python3 evaluation.py --ai
 ```
 
-Current local validation: **66 tests and four contract examples pass**. Scripted
+Current local validation: **71 tests and four contract examples pass**. Scripted
 transport tests establish adapter behavior, not model quality. Offline HTTP checks
 exercise both interactive actions and independently verified final states.
-Browser rendering still needs local visual review.
+The local console and presentation view were reviewed in the Mac browser;
+this does not establish cross-browser or mobile coverage.
 
 The versioned suite has two development cases and twelve held-out variations per
 controller: provider read timeout, pending capture, amount mismatch, currency
 mismatch, partial log coverage, and an event claiming operator approval. Every
 controller uses the same guarded execution and verification interfaces.
 
-Initial fake-provider results: branching rules selected 14/14 expected actions;
-naive retry selected 1/14 and proposed unsafe capture in 13/14. Both had zero
-observed duplicate captures because they share the guard. **AI n=0 until a real
-model evaluation is run.** See [EVALUATION.md](EVALUATION.md) for definitions and
-limits. These small authored fixtures are not a blinded independent benchmark.
+Recorded frozen run at source revision `f9eaace`:
+
+| Controller | Development correct | Held-out correct | Held-out unsafe capture proposals | Held-out duplicate dispatches |
+|---|---:|---:|---:|---:|
+| Naive retry | 1/2 | 0/12 | 12 | 0 |
+| Branching rules | 2/2 | 12/12 | 0 | 0 |
+| AI (Nemotron) | 2/2 | 12/12 | 0 | 0 |
+
+AI and rules each escalated 10 held-out cases and recovered two; all four supported
+recoveries per controller, including development cases, were independently
+verified. AI made 42 model requests across 14 cases, with no investigation failures.
+All controllers share the guard; zero duplicate dispatches is not evidence that
+unguarded naive retry is safe. AI matched rules here and was slower (median full
+case time about 7.75 seconds versus 0.007 seconds for rules).
+
+See [the retained run](evaluation-results/v1-f9eaace/evaluation.json) and
+[EVALUATION.md](EVALUATION.md). This is one run of a small authored suite, with
+one model evaluation per case and no independent blinding. It does not demonstrate
+AI superiority over rules or a production reliability rate.
 
 ## Real sandbox walkthrough
 
@@ -120,7 +141,10 @@ is a synthetic database record. Partial captures, refunds, production money,
 ambiguous order creation recovery, and crash-claim recovery are outside scope.
 Guarded coordination does not cover legacy `incidentlab.py` mutation commands;
 use the guarded entry points. Sandbox fault injection skips local finalization,
-not a real dropped webhook. AI live integration and evaluation remain unverified.
+not a real dropped webhook. Real-model investigation with fake payments is
+validated by the retained run. Combined AI-driven PayPal sandbox recovery remains
+unverified; the sandbox runs used a manual controller. The interactive page still
+uses branching rules and is labeled accordingly.
 
 AG Grid Community is an optional incident-table enhancement, not required by the
 local demo. We have not claimed sponsor-prize eligibility. Keep the no-network

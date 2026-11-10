@@ -1,0 +1,149 @@
+{
+  "contract_version": "1.0",
+  "run_id": "5a3b2189-d700-49a7-a100-87305a874b4c",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "d81a24156aa24fcc95427f40d2218eea",
+    "order_id": "ba8c83c586504d97b997b15994f582fe",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "e97277be783547fdb0f3d407d0fe43fd",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "ba8c83c586504d97b997b15994f582fe",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:41:21.682419Z"
+      },
+      {
+        "evidence_id": "672798906c054650bb5f6b8c67d1c137",
+        "tool": "get_paypal_order",
+        "status": "ERROR",
+        "error": {
+          "code": "INVALID_RESPONSE",
+          "message": "Diagnostic source returned unsupported or incomplete evidence."
+        },
+        "observed_at": "2026-11-10T04:41:21.682709Z"
+      },
+      {
+        "evidence_id": "63678fa9a66141d3af681b6b36fbcad5",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": []
+        },
+        "observed_at": "2026-11-10T04:41:21.682957Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "d81a24156aa24fcc95427f40d2218eea",
+    "action": "escalate",
+    "order_id": "ba8c83c586504d97b997b15994f582fe",
+    "summary": "Insufficient provider order evidence: PayPal diagnostic returned ERROR with unsupported/incomplete evidence. Local order shows payment_state UNCONFIRMED with no capture_id. Application events have PARTIAL coverage and empty events. Cannot verify provider order identity, amount, or currency against local order as required by recovery policy step 1.",
+    "evidence_ids": [
+      "e97277be783547fdb0f3d407d0fe43fd",
+      "672798906c054650bb5f6b8c67d1c137",
+      "63678fa9a66141d3af681b6b36fbcad5"
+    ]
+  },
+  "execution": {
+    "decision_id": "d81a24156aa24fcc95427f40d2218eea",
+    "action": "escalate",
+    "status": "NOT_EXECUTED",
+    "message": "Escalated for operator investigation; no recovery performed."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": "CAP-SANDBOX-FAKE-1",
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "PASS"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "FAIL"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "e97277be783547fdb0f3d407d0fe43fd"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: ERROR",
+      "evidence_ids": [
+        "672798906c054650bb5f6b8c67d1c137"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "63678fa9a66141d3af681b6b36fbcad5"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Insufficient provider order evidence: PayPal diagnostic returned ERROR with unsupported/incomplete evidence. Local order shows payment_state UNCONFIRMED with no capture_id. Application events have PARTIAL coverage and empty events. Cannot verify provider order identity, amount, or currency against local order as required by recovery policy step 1.",
+      "evidence_ids": [
+        "e97277be783547fdb0f3d407d0fe43fd",
+        "672798906c054650bb5f6b8c67d1c137",
+        "63678fa9a66141d3af681b6b36fbcad5"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "NOT_EXECUTED: Escalated for operator investigation; no recovery performed.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

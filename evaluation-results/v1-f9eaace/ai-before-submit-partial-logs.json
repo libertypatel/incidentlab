@@ -1,0 +1,156 @@
+{
+  "contract_version": "1.0",
+  "run_id": "ff7a636b-d576-466f-a722-3a4a05fbf264",
+  "controller": "agent",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "a3974e8bcbac454cb098dc21dac0342e",
+    "order_id": "be388935ae55454f960363200aa99949",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "f2bbf9f197924bb1ab2eeb678ddf1849",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "be388935ae55454f960363200aa99949",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:40:25.924373Z"
+      },
+      {
+        "evidence_id": "6eac2222dd77430f94b87addd101f724",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "APPROVED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "be388935ae55454f960363200aa99949",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": []
+        },
+        "observed_at": "2026-11-10T04:40:26.572758Z"
+      },
+      {
+        "evidence_id": "d0a9d33746b445caa05cbf20ab69382a",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": []
+        },
+        "observed_at": "2026-11-10T04:40:27.683411Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "a3974e8bcbac454cb098dc21dac0342e",
+    "action": "escalate",
+    "order_id": "be388935ae55454f960363200aa99949",
+    "summary": "Provider order SANDBOX-FAKE-1 is APPROVED with no captures, local order is UNCONFIRMED with no capture_id. Identity/amount/currency match but neither reconcile_order (requires COMPLETED capture) nor capture_approved_order (requires CAPTURE_NOT_SENT evidence) has sufficient evidence. Application events have PARTIAL coverage with no CAPTURE_NOT_SENT diagnostic event observed.",
+    "evidence_ids": [
+      "f2bbf9f197924bb1ab2eeb678ddf1849",
+      "6eac2222dd77430f94b87addd101f724",
+      "d0a9d33746b445caa05cbf20ab69382a"
+    ]
+  },
+  "execution": {
+    "decision_id": "a3974e8bcbac454cb098dc21dac0342e",
+    "action": "escalate",
+    "status": "NOT_EXECUTED",
+    "message": "Escalated for operator investigation; no recovery performed."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "FAIL"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "f2bbf9f197924bb1ab2eeb678ddf1849"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "6eac2222dd77430f94b87addd101f724"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "d0a9d33746b445caa05cbf20ab69382a"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Provider order SANDBOX-FAKE-1 is APPROVED with no captures, local order is UNCONFIRMED with no capture_id. Identity/amount/currency match but neither reconcile_order (requires COMPLETED capture) nor capture_approved_order (requires CAPTURE_NOT_SENT evidence) has sufficient evidence. Application events have PARTIAL coverage with no CAPTURE_NOT_SENT diagnostic event observed.",
+      "evidence_ids": [
+        "f2bbf9f197924bb1ab2eeb678ddf1849",
+        "6eac2222dd77430f94b87addd101f724",
+        "d0a9d33746b445caa05cbf20ab69382a"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "NOT_EXECUTED: Escalated for operator investigation; no recovery performed.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}

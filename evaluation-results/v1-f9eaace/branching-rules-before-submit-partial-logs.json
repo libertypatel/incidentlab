@@ -1,0 +1,156 @@
+{
+  "contract_version": "1.0",
+  "run_id": "45347693-eb91-4252-a9fd-45069b2a5228",
+  "controller": "rules",
+  "evidence": {
+    "contract_version": "1.0",
+    "mode": "offline",
+    "incident_id": "83a4deb01c64458baef50922f249ec35",
+    "order_id": "77ce1b333b274c629b3a9c1dc3fcca93",
+    "symptom": "Checkout could not be confirmed",
+    "observations": [
+      {
+        "evidence_id": "79db0608936c4a45b98dc20b5f0eaad1",
+        "tool": "get_local_order",
+        "status": "OK",
+        "data": {
+          "order_id": "77ce1b333b274c629b3a9c1dc3fcca93",
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "payment_state": "UNCONFIRMED",
+          "currency": "USD",
+          "amount": "1.00",
+          "capture_id": null,
+          "fulfillment_count": 0
+        },
+        "observed_at": "2026-11-10T04:39:48.113675Z"
+      },
+      {
+        "evidence_id": "f7086ccb16c24913aadf2058c4289286",
+        "tool": "get_paypal_order",
+        "status": "OK",
+        "data": {
+          "provider_order_id": "SANDBOX-FAKE-1",
+          "status": "APPROVED",
+          "purchase_unit": {
+            "provider_order_id": "SANDBOX-FAKE-1",
+            "custom_id": "77ce1b333b274c629b3a9c1dc3fcca93",
+            "currency": "USD",
+            "amount": "1.00"
+          },
+          "captures": []
+        },
+        "observed_at": "2026-11-10T04:39:48.113816Z"
+      },
+      {
+        "evidence_id": "414288f6840348babf0774776c9785a4",
+        "tool": "get_application_events",
+        "status": "OK",
+        "data": {
+          "coverage": "PARTIAL",
+          "events": []
+        },
+        "observed_at": "2026-11-10T04:39:48.114012Z"
+      }
+    ]
+  },
+  "decision": {
+    "decision_id": "83a4deb01c64458baef50922f249ec35",
+    "order_id": "77ce1b333b274c629b3a9c1dc3fcca93",
+    "action": "escalate",
+    "summary": "Evidence is incomplete or outside supported payment states; request operator investigation.",
+    "evidence_ids": [
+      "79db0608936c4a45b98dc20b5f0eaad1",
+      "f7086ccb16c24913aadf2058c4289286",
+      "414288f6840348babf0774776c9785a4"
+    ]
+  },
+  "execution": {
+    "decision_id": "83a4deb01c64458baef50922f249ec35",
+    "action": "escalate",
+    "status": "NOT_EXECUTED",
+    "message": "Escalated for operator investigation; no recovery performed."
+  },
+  "verification": {
+    "status": "NOT_VERIFIED",
+    "provider_order_id": "SANDBOX-FAKE-1",
+    "completed_capture_id": null,
+    "local_payment_state": "UNCONFIRMED",
+    "fulfillment_count": 0,
+    "checks": [
+      {
+        "name": "provider_payment_completed",
+        "status": "FAIL"
+      },
+      {
+        "name": "order_identity_matches",
+        "status": "PASS"
+      },
+      {
+        "name": "amount_currency_match",
+        "status": "PASS"
+      },
+      {
+        "name": "local_state_matches",
+        "status": "FAIL"
+      },
+      {
+        "name": "single_fulfillment",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "stage": "detected",
+      "summary": "Checkout could not be confirmed",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 2,
+      "stage": "tool_result",
+      "summary": "get_local_order: OK",
+      "evidence_ids": [
+        "79db0608936c4a45b98dc20b5f0eaad1"
+      ]
+    },
+    {
+      "sequence": 3,
+      "stage": "tool_result",
+      "summary": "get_paypal_order: OK",
+      "evidence_ids": [
+        "f7086ccb16c24913aadf2058c4289286"
+      ]
+    },
+    {
+      "sequence": 4,
+      "stage": "tool_result",
+      "summary": "get_application_events: OK",
+      "evidence_ids": [
+        "414288f6840348babf0774776c9785a4"
+      ]
+    },
+    {
+      "sequence": 5,
+      "stage": "decision",
+      "summary": "Evidence is incomplete or outside supported payment states; request operator investigation.",
+      "evidence_ids": [
+        "79db0608936c4a45b98dc20b5f0eaad1",
+        "f7086ccb16c24913aadf2058c4289286",
+        "414288f6840348babf0774776c9785a4"
+      ]
+    },
+    {
+      "sequence": 6,
+      "stage": "execution",
+      "summary": "NOT_EXECUTED: Escalated for operator investigation; no recovery performed.",
+      "evidence_ids": []
+    },
+    {
+      "sequence": 7,
+      "stage": "verification",
+      "summary": "NOT_VERIFIED",
+      "evidence_ids": []
+    }
+  ]
+}
