@@ -95,6 +95,35 @@ class GuardedTests(unittest.TestCase):
         self.assertEqual(self.gateway.capture_calls, 1)
         self.assertEqual(verify_recovery(self.path, self.gateway.get, self.local)['fulfillment_count'], 1)
 
+    def test_reconcile_rechecks_local_capture_reference_before_finalizing(self):
+        self.assertEqual(self.run_action(token=self.approve(), fault='lost-confirmation')['status'], 'UNKNOWN')
+        session, decision = self.investigate('reconcile_order')
+        # Local state changes after investigation; execution must check it afresh.
+        with self.store.db:
+            self.store.db.execute('UPDATE orders SET capture_id=? WHERE id=?',
+                                  ('CONFLICTING-CAPTURE', self.local))
+        before = dict(self.store.order(self.local))
+        journal = dict(self.store.db.execute('SELECT * FROM capture_journal WHERE order_id=?',
+                                            (self.local,)).fetchone())
+        result = execute_recovery(self.store, self.gateway, session, decision)
+        self.assertEqual(result['status'], 'BLOCKED')
+        self.assertEqual(dict(self.store.order(self.local)), before)
+        self.assertEqual(dict(self.store.db.execute('SELECT * FROM capture_journal WHERE order_id=?',
+                                                   (self.local,)).fetchone()), journal)
+        self.assertEqual(self.store.db.execute('SELECT COUNT(*) FROM fulfillment WHERE order_id=?',
+                                              (self.local,)).fetchone()[0], 0)
+        self.assertEqual(self.gateway.capture_calls, 1)
+        self.assertEqual(verify_recovery(self.path, self.gateway.get, self.local)['status'], 'NOT_VERIFIED')
+
+    def test_reconcile_allows_matching_local_capture_reference(self):
+        self.assertEqual(self.run_action(token=self.approve(), fault='lost-confirmation')['status'], 'UNKNOWN')
+        capture_id = self.gateway.get(self.remote)['purchase_units'][0]['payments']['captures'][0]['id']
+        with self.store.db:
+            self.store.db.execute('UPDATE orders SET capture_id=? WHERE id=?', (capture_id, self.local))
+        self.assertEqual(self.run_action('reconcile_order')['status'], 'SUCCEEDED')
+        self.assertEqual(self.gateway.capture_calls, 1)
+        self.assertEqual(verify_recovery(self.path, self.gateway.get, self.local)['status'], 'VERIFIED')
+
     def test_timeout_is_durable_across_database_reopen(self):
         self.gateway.lose_transport_response = True
         self.assertEqual(self.run_action(token=self.approve())['status'], 'UNKNOWN')
