@@ -5,6 +5,7 @@ import urllib.request
 from urllib.parse import urlparse
 
 from evidence_tools import TOOLS
+from rules_controller import rules_investigator
 from run_integration import _validator
 
 SYSTEM = '''Investigate one checkout incident using only the three diagnostic tools.
@@ -48,27 +49,10 @@ def decision(context, rows, action, summary):
             'evidence_ids': [row['evidence_id'] for row in rows]}
 
 
-def branching_rules(context, call_tool):
-    rows = [call_tool(name, {'order_id': context['order_id']}) for name in TOOLS]
-    action = 'escalate'
-    if all(r['status'] == 'OK' for r in rows):
-        local, remote, events = [r['data'] for r in rows]
-        unit = remote['purchase_unit']
-        matches = (remote['provider_order_id'] == local['provider_order_id']
-                   == unit['provider_order_id'] and unit['custom_id'] == local['order_id']
-                   and (unit['amount'], unit['currency']) == (local['amount'], local['currency']))
-        caps = remote['captures']
-        if matches and len(caps) == 1 and remote['status'] == 'COMPLETED':
-            cap = caps[0]
-            if cap['status'] == 'COMPLETED' and (cap['amount'], cap['currency']) == (local['amount'], local['currency']):
-                action = 'reconcile_order'
-        elif matches and not caps and remote['status'] == 'APPROVED' and any(
-                e['event'] == 'CAPTURE_NOT_SENT' for e in events['events']):
-            action = 'capture_approved_order'
-    return decision(context, rows, action, {
-        'escalate': 'Evidence is incomplete or outside supported payment states; request operator investigation.',
-        'reconcile_order': 'One matching completed capture exists; reconcile local state without capturing again.',
-        'capture_approved_order': 'Buyer approved and durable journal establishes non-submission; request operator approval.'}[action])
+# The branching-rules baseline is the stricter controller in rules_controller.py:
+# it also escalates on local inconsistencies (already PAID, existing fulfillment,
+# conflicting local capture reference) and on malformed tool data.
+branching_rules = rules_investigator
 
 
 def naive_retry(context, call_tool):
