@@ -154,7 +154,10 @@ class InvestigatorTests(unittest.TestCase):
     def test_three_controllers_share_case_matrix(self):
         with tempfile.TemporaryDirectory() as folder, redirect_stdout(StringIO()):
             result = evaluate(Path(folder))
-            self.assertEqual(len(result['runs']), 28)
+            self.assertEqual(len(result['runs']), 44)
+            v2 = [r for r in result['runs'] if r['split'] == 'held-out-v2']
+            self.assertEqual(len(v2), 16)  # 8 cases x naive retry and rules
+            self.assertTrue(all(r['expected'] == 'escalate' for r in v2))
             self.assertEqual(result['ai_status'], 'NOT RUN: no model requested; n=0')
             rules = [r for r in result['runs'] if r['controller'] == 'branching-rules']
             self.assertTrue(all(r['correct_action'] for r in rules))

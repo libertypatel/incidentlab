@@ -3,3 +3,6 @@
 __pycache__/
 *.sqlite3
 *.sqlite3-*
+
+# Personal notes (local only)
+TEAMMATE1_NOTES.md
