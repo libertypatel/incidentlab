@@ -243,6 +243,9 @@ class InvestigatorTests(unittest.TestCase):
             development = summary[('ai', 'development')]
             self.assertEqual((development['n'], development['correct_actions'],
                               development['model_generated_correct']), (4, 0, 0))
+            # The model-only metric is not emitted for deterministic controllers.
+            for (controller, _), entry in summary.items():
+                self.assertEqual('model_generated_correct' in entry, controller == 'ai', controller)
         with self.assertRaises(ValueError):
             evaluate(Path(folder), trials=0)
 
