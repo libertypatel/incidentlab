@@ -108,7 +108,7 @@ def serve(port=0, open_browser=True, ai=False):
         investigator = AIInvestigator(ChatTransport())
     with tempfile.TemporaryDirectory(prefix='incidentlab-demo-') as folder:
         demo, token = Demo(Path(folder), investigator=investigator), secrets.token_urlsafe(24)
-        page = (Path(__file__).with_name('report.html')).read_text().replace('__TOKEN__', token)
+        page = (Path(__file__).with_name('report.html')).read_text(encoding='utf-8').replace('__TOKEN__', token)
         class Handler(BaseHTTPRequestHandler):
             def log_message(self, *args):
                 pass
