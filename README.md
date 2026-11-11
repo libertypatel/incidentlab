@@ -1,28 +1,84 @@
-# IncidentLab — AI Incident Investigation and Verified Recovery
+<h1><img src="docs/img/logo.svg" width="44" align="top" alt=""> IncidentLab</h1>
 
-**In one frozen fake-provider evaluation, the AI selected all 12 held-out actions
-correctly, matching branching rules, with zero duplicate capture dispatches.**
-The two development cases also passed. Separately, manual PayPal sandbox recovery
-restored a paid order after deliberately lost local confirmation, with one capture,
-one fulfillment record, and all five independent checks passing. These are small
-prototype results, not production reliability evidence.
+![PayPal AI Hackathon 2026](https://img.shields.io/badge/PayPal_AI_Hackathon-2026-0070BA?style=flat-square)
+![PayPal Sandbox](https://img.shields.io/badge/PayPal-Sandbox_only-003087?style=flat-square&logo=paypal&logoColor=white)
+![NVIDIA Nemotron](https://img.shields.io/badge/NVIDIA_Nemotron-via_Nebius-76B900?style=flat-square&logo=nvidia&logoColor=white)
+![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-94_passing-34D399?style=flat-square)
+![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square)
 
-**The later eight-case conflict run exposed AI limitations:** two correct model
-escalations, one fallback escalation after a model-request HTTP error, and five
-incorrect recovery proposals blocked by the executor. No additional captures were
-dispatched. The first v2 run is retained separately; see [EVALUATION.md](EVALUATION.md).
+![IncidentLab: same checkout error, different recovery](docs/img/banner.png)
 
-After clarifying mandatory conflict checks, a **development rerun** on the same
-eight known conflict cases produced 8/8 correct model escalations with no fallbacks.
-The same prompt also recovered both known valid cases with independent verification:
-capture 0 -> 1 and reconcile 1 -> 1, each with one synthetic fulfillment. These tuned
-checks are not new held-out results; the original failures remain preserved.
-
-Two customers see the same checkout error. One capture was never submitted; the
-other completed but local confirmation was lost. IncidentLab investigates the
-payment evidence and proposes a bounded recovery.
+**Two customers see the same "Checkout could not be confirmed" error. One was never
+charged. The other already paid. IncidentLab sends an AI investigator to read the
+evidence through three read-only tools (the store's order record, the PayPal order,
+and the application event log), then propose one bounded move: capture, reconcile,
+or escalate. Code rechecks the evidence before anything runs, a person approves
+every capture, and a separate verifier confirms the result.**
 
 **AI proposes, code decides, human approves, verifier confirms.**
+
+[Run the demo](#run-the-interactive-offline-demo) · [Evaluation](EVALUATION.md) ·
+[Saved Sandbox run](sandbox-validation/ai-reconciliation-2026-11-10/run.json) ·
+Built by Liberty Patel and Praise Wenegieme for the PayPal AI Hackathon 2026
+
+<p align="center"><img src="docs/img/receipt-split.gif" width="85%" alt="One $1.00 receipt splits into two customers: capture never sent, and paid but the store missed it"></p>
+
+## One real run
+
+Recorded November 10, 2026 with `python3 offline_demo.py --ai`: real Nemotron
+requests against a simulated payment provider. The evidence below comes from the
+saved investigation records.
+
+| | |
+|---|---|
+| ![Investigation](docs/img/investigate.jpg) | ![Approval](docs/img/approve.jpg) |
+| **Investigate.** The AI reads three sources and cites their evidence IDs: store unconfirmed, PayPal approved with 0 captures, journal shows the capture request was never sent. | **Approve.** The AI proposed a capture, but it cannot move money. Nothing runs until a person clicks **Approve capture · USD 1.00**. |
+| ![Verified](docs/img/verified.jpg) | ![Side by side](docs/img/side-by-side.jpg) |
+| **Verify.** Code rechecks the evidence, captures once, and the independent verifier passes 5/5 checks. Captures go 0 → 1. | **Compare.** The second customer had already paid. Code repairs the store record instead, and captures stay at 1 → 1. |
+| ![Sandbox](docs/img/sandbox.jpg) | ![Conflicts](docs/img/conflicts.jpg) |
+| **Sandbox.** Separately, an AI-guided reconciliation in PayPal Sandbox (test money) marked the store order paid while the provider's capture ID stayed the same. | **Failures, kept.** On eight harder conflict cases, the first AI run made five wrong proposals. The executor blocked all five. No extra captures. |
+
+## Results at a glance
+
+| Run | Result |
+|---|---|
+| Held-out v1, frozen at `f9eaace` (12 cases) | AI 12/12 and branching rules 12/12. Naive retry 0/12, with 12 unsafe capture proposals: 10 blocked, 2 failed during provider timeouts. No duplicate capture dispatches were observed. |
+| Held-out v2, first AI run (8 conflict cases) | 2 correct model escalations, 1 fallback escalation after a model-request HTTP error, 5 incorrect recovery proposals. All 5 were blocked; no additional captures were dispatched. |
+| Development rerun (same 8 known cases) | 8/8 correct escalations, and both known valid cases still recovered with independent verification (capture 0 → 1, reconcile 1 → 1). Tuned on known cases, so not a new held-out score. |
+| PayPal Sandbox, Nov 10, 2026 | AI-guided reconciliation of a lost confirmation: SUCCEEDED, VERIFIED, 5/5 checks, one synthetic fulfillment, same capture identity and count. |
+
+These are small prototype results, not production reliability evidence. Details,
+including the retained first v2 run, are in [EVALUATION.md](EVALUATION.md) and
+[Evaluation and tests](#evaluation-and-tests) below.
+
+```mermaid
+flowchart LR
+    I["Checkout could not be confirmed"] --> A["AI investigator<br/>3 read-only tools"]
+    A -->|"one proposal + evidence IDs"| X["Guarded executor<br/>rechecks evidence"]
+    H["Person approves<br/>capture amount"] --> X
+    X -->|"capture or reconcile"| V["Independent verifier<br/>fresh provider read +<br/>read-only database"]
+    X -->|"anything uncertain"| E["Escalate to a person"]
+```
+
+## What it does not do yet
+
+- Handles one USD 1.00 purchase unit and one matching completed capture. No partial captures, refunds, or production money.
+- Fulfillment is a synthetic database record, not a real shipment.
+- The Sandbox AI run was a reconciliation. AI-driven capture in PayPal Sandbox is not established; that incident's capture was authorized manually beforehand.
+- The evaluation suite is small and written by the team, with one model run per case and no independent blinding.
+- There is no hosted deployment. The console is a local demo.
+
+## Built during the hackathon
+
+The first commit (`f03f751`) is from November 5, 2026, and the commit history shows
+each step. Liberty Patel built the payment backend and PayPal integration. Praise
+Wenegieme contributed the stricter rules baseline and the held-out v2 conflict cases.
+ChatGPT/Codex and Claude were used as development assistants. The demo video's
+narration was generated with ElevenLabs and its graphics were made with Remotion.
+
+Built on the PayPal Orders v2 API (Sandbox), `nvidia/Nemotron-3_5-Lightning` through
+Nebius Token Factory, and `jsonschema`.
 
 ## Run the interactive offline demo
 
