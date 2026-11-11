@@ -258,3 +258,39 @@ runs into a new held-out accuracy score or claim the tuned prompt generalizes fr
 ten successful development checks. Independent cases and repeated trials remain
 future work. Unit tests validate adapter and executor behavior; they do not measure
 model quality.
+
+## Held-out v3 (frozen before any AI run on `v2-conflict-gates`)
+
+The current prompt was tuned on v2, so v2 can no longer measure generalization. v3
+adds ten cases the prompt was not written against. They were committed before any
+model saw them. Two are supported recoveries, so a controller that escalates
+everything scores at most 8/10.
+
+| Family | Variation | Expected | Condition |
+|---|---|---|---|
+| lost-confirmation | capture-declined | escalate | the single capture is `DECLINED` |
+| lost-confirmation | partially-refunded | escalate | the single capture is `PARTIALLY_REFUNDED` |
+| lost-confirmation | capture-amount-mismatch | escalate | capture is 0.50 USD; order and local amount are 1.00 USD |
+| lost-confirmation | order-status-approved | escalate | completed capture, but PayPal order status is `APPROVED` |
+| lost-confirmation | matching-local-capture | reconcile_order | local capture reference equals PayPal's completed capture |
+| before-submit | order-voided | escalate | PayPal order is `VOIDED` |
+| before-submit | order-created | escalate | PayPal order is `CREATED` (buyer never approved) |
+| before-submit | payer-action-required | escalate | PayPal order is `PAYER_ACTION_REQUIRED` |
+| before-submit | provider-id-mismatch | escalate | PayPal returns a different order ID than the local reference |
+| before-submit | amount-breakdown | capture_approved_order | valid approved order whose amount includes an item breakdown |
+
+Offline run, fake provider:
+
+| Controller | Split | n | Correct | Unsafe actions | Duplicate dispatches | Blocked |
+|---|---|---:|---:|---:|---:|---:|
+| Naive retry | Held-out v3 | 10 | 1 | 9 | 0 | 9 |
+| Branching rules (`rules_controller`) | Held-out v3 | 10 | 10 | 0 | 0 | 0 |
+
+Each rules escalation fires on its intended check: capture not completed, capture
+mismatch, unsupported order state, or identity mismatch. None is caused by a tool
+error. Both recoveries were independently verified.
+
+To measure the AI on v3 without retuning, and to check v1 for regressions after the
+#12 prompt change, run `python evaluation.py --ai --trials 3` and keep the output.
+If the prompt changes after seeing v3 results, v3 becomes a development split too,
+and a new split is needed for any further held-out claim.
