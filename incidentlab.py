@@ -208,7 +208,7 @@ def verify(store, gateway, local_id):
 def load_env():
     path = Path(".env")
     if path.exists():
-        for raw in path.read_text().splitlines():
+        for raw in path.read_text(encoding='utf-8').splitlines():
             raw = raw.strip()
             if raw and not raw.startswith("#") and "=" in raw:
                 key, value = raw.split("=", 1)

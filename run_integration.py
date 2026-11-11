@@ -17,7 +17,7 @@ class RunUnavailable(Exception):
 
 @cache
 def _validator(kind):
-    schema = json.loads((Path(__file__).parent / 'contracts/incident-v1.schema.json').read_text())
+    schema = json.loads((Path(__file__).parent / 'contracts/incident-v1.schema.json').read_text(encoding='utf-8'))
     return Draft202012Validator({'$ref': '#/$defs/' + kind, '$defs': schema['$defs']},
                                format_checker=FormatChecker())
 
