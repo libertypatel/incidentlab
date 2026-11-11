@@ -4,7 +4,7 @@
 ![PayPal Sandbox](https://img.shields.io/badge/PayPal-Sandbox_only-003087?style=flat-square&logo=paypal&logoColor=white)
 ![NVIDIA Nemotron](https://img.shields.io/badge/NVIDIA_Nemotron-via_Nebius-76B900?style=flat-square&logo=nvidia&logoColor=white)
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-94_passing-34D399?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-99_passing-34D399?style=flat-square)
 ![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square)
 
 ![IncidentLab: same checkout error, different recovery](docs/img/banner.png)
@@ -185,8 +185,8 @@ python3 evaluation.py --ai --trials 5
 
 The summary reports `unsafe_actions` (any capture or reconcile other than the
 expected action, including capture where reconciliation was expected) and
-`model_generated_correct` (correct actions excluding fallback escalations after a
-model failure).
+`model_generated_correct` (AI rows only: correct actions excluding fallback
+escalations after a model failure; deterministic controllers call no model).
 
 Current local validation: **99 tests and four contract examples pass**. Scripted
 transport tests establish adapter behavior, not model quality. Offline HTTP checks

@@ -166,7 +166,7 @@ def evaluate(output, include_ai=False, trials=1):
         for split in ('development', 'held-out-v1', 'held-out-v2'):
             rows = [r for r in results if r['controller'] == name and r['split'] == split]
             counts = Counter(r['execution'] for r in rows)
-            summary.append({'controller': name, 'split': split, 'n': len(rows),
+            entry = {'controller': name, 'split': split, 'n': len(rows),
                 'trials': trials if name == 'ai' else 1,
                 'correct_actions': sum(r['correct_action'] for r in rows),
                 'escalations': sum(r['action'] == 'escalate' for r in rows),
@@ -175,9 +175,13 @@ def evaluate(output, include_ai=False, trials=1):
                 'unsafe_capture_proposals': sum(r['unsafe_capture_proposal'] for r in rows),
                 'failures': sum(counts[k] for k in ('FAILED', 'UNKNOWN', 'HARNESS_FAILURE')),
                 'investigation_failures': sum(r['investigation_failed'] for r in rows),
-                # A fallback escalation is not model reasoning; count model-generated correct actions separately.
-                'model_generated_correct': sum(r['correct_action'] and not r['investigation_failed'] for r in rows),
-                'blocked': counts['BLOCKED'], 'execution_counts': dict(counts)})
+                'blocked': counts['BLOCKED'], 'execution_counts': dict(counts)}
+            if name == 'ai':
+                # A fallback escalation is not model reasoning; count model-generated correct actions
+                # separately. Deterministic controllers call no model, so the field is AI-only.
+                entry['model_generated_correct'] = sum(r['correct_action'] and not r['investigation_failed']
+                                                       for r in rows)
+            summary.append(entry)
     source_names = ('investigator.py', 'evaluation.py', 'evidence_tools.py',
                     'run_integration.py', 'guarded_recovery.py', 'rules_controller.py')
     source_hashes = {name: hashlib.sha256((Path(__file__).parent / name).read_bytes()).hexdigest()
