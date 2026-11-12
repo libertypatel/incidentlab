@@ -72,10 +72,17 @@ flowchart LR
 ## Built during the hackathon
 
 The first commit (`f03f751`) is from November 5, 2026, and the commit history shows
-each step. Liberty Patel built the payment backend and PayPal integration. Praise
-Wenegieme contributed the stricter rules baseline and the held-out v2 conflict cases.
-ChatGPT/Codex and Claude were used as development assistants. The demo video's
-narration was generated with ElevenLabs and its graphics were made with Remotion.
+each step.
+
+**Project team**
+
+- **Liberty Patel** built the payment backend and PayPal integration.
+- **Praise Wenegieme** contributed the stricter rules baseline and the held-out v2 conflict cases.
+
+**Tools used**
+
+The team used AI coding assistants during development, ElevenLabs for the demo narration,
+and Remotion for the video graphics.
 
 Built on the PayPal Orders v2 API (Sandbox), `nvidia/Nemotron-3_5-Lightning` through
 Nebius Token Factory, and `jsonschema`.
