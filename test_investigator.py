@@ -1,4 +1,5 @@
 """Scripted transport tests are adapter tests, never AI performance results."""
+from collections import Counter
 from contextlib import redirect_stdout
 from io import StringIO
 import os
@@ -252,7 +253,13 @@ class InvestigatorTests(unittest.TestCase):
     def test_three_controllers_share_case_matrix(self):
         with tempfile.TemporaryDirectory() as folder, redirect_stdout(StringIO()):
             result = evaluate(Path(folder))
-            self.assertEqual(len(result['runs']), 44)
+            self.assertEqual(len(result['runs']), 64)
+            v3 = [r for r in result['runs'] if r['split'] == 'held-out-v3']
+            self.assertEqual(len(v3), 20)  # 10 cases x naive retry and rules
+            self.assertEqual(Counter(r['expected'] for r in v3 if r['controller'] == 'branching-rules'),
+                             {'escalate': 8, 'reconcile_order': 1, 'capture_approved_order': 1})
+            self.assertTrue(all(r['verification'] == 'VERIFIED' for r in v3
+                                if r['controller'] == 'branching-rules' and r['expected'] != 'escalate'))
             v2 = [r for r in result['runs'] if r['split'] == 'held-out-v2']
             self.assertEqual(len(v2), 16)  # 8 cases x naive retry and rules
             self.assertTrue(all(r['expected'] == 'escalate' for r in v2))
