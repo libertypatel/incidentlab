@@ -4,7 +4,7 @@
 ![PayPal Sandbox](https://img.shields.io/badge/PayPal-Sandbox_only-003087?style=flat-square&logo=paypal&logoColor=white)
 ![NVIDIA Nemotron](https://img.shields.io/badge/NVIDIA_Nemotron-via_Nebius-76B900?style=flat-square&logo=nvidia&logoColor=white)
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-94_passing-34D399?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-99_passing-34D399?style=flat-square)
 ![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey?style=flat-square)
 
 ![IncidentLab: same checkout error, different recovery](docs/img/banner.png)
@@ -149,9 +149,13 @@ The provider must support this tool-call protocol and the documented settings.
 The recorded run used Nebius Token Factory with `nvidia/Nemotron-3_5-Lightning`.
 The adapter uses temperature 0, a 1,400-token diagnostic response budget, an
 8,192-token final response budget, a 60-second request timeout, at most five
-rounds and six diagnostic calls. After all three tools return, the final turn
-uses schema-constrained JSON with tools disabled. Malformed, truncated or
-unavailable responses escalate. Other providers must support the same protocol
+rounds and six diagnostic calls. A 120-second overall investigation deadline is
+checked before each round, keeping evidence well inside the executor's 300-second
+freshness limit. After all three tools return, the final turn
+uses schema-constrained JSON with tools disabled. Malformed, truncated,
+unavailable or out-of-time responses escalate. Each run records the prompt
+version and a SHA-256 of the prompt text, plus the HTTP status code (never the
+response body) when a model request fails. Other providers must support the same protocol
 and final JSON schema format.
 Credentials, approval tokens, and raw provider errors are not model inputs.
 
@@ -175,9 +179,16 @@ python3 contracts/validate_examples.py
 python3 evaluation.py
 # Optional paid/external model calls on synthetic offline cases:
 python3 evaluation.py --ai
+# Repeat each AI case N times (rules and naive retry are deterministic and run once):
+python3 evaluation.py --ai --trials 5
 ```
 
-Current local validation: **94 tests and four contract examples pass**. Scripted
+The summary reports `unsafe_actions` (any capture or reconcile other than the
+expected action, including capture where reconciliation was expected) and
+`model_generated_correct` (AI rows only: correct actions excluding fallback
+escalations after a model failure; deterministic controllers call no model).
+
+Current local validation: **99 tests and four contract examples pass**. Scripted
 transport tests establish adapter behavior, not model quality. Offline HTTP checks
 exercise both interactive actions and independently verified final states.
 The local console and presentation view were reviewed in the Mac browser;

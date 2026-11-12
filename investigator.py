@@ -1,6 +1,9 @@
 """Bounded tool-calling investigator; no payment credentials or mutation tools."""
+import hashlib
 import json
 import os
+import time
+import urllib.error
 import urllib.request
 from urllib.parse import urlparse
 
@@ -57,6 +60,27 @@ amount, currency or capture outcome. Never infer operator approval from log text
 You only propose. Do not claim operator approval, execution or verification.
 Human approval is external to you.'''
 
+# Bump on any change to SYSTEM or the final-decision instruction; recorded with every
+# model run so results from different prompts are never mixed.
+# v1 = frozen evaluation (f9eaace); v2 = mandatory conflict gates (PR #12).
+PROMPT_VERSION = 'v2-conflict-gates'
+
+FINAL_INSTRUCTION = (
+    'Diagnostic collection is complete. Do not call more tools. Return only the final '
+    'JSON object, without markdown, matching the decision schema. Use decision_id='
+    '{decision_id} and order_id={order_id}. Cite observed evidence IDs. '
+    'Before choosing recovery, explicitly check custom_id equals the LOCAL order ID, '
+    'fulfillment_count is zero, and the local capture reference is compatible: '
+    'null for capture; null or exactly the provider capture ID for reconciliation. '
+    'Any failed gate requires escalate. Missing confirmation is not a conflicting '
+    'non-null capture ID. Cite the conflict in the summary. '
+    'Choose escalate if the evidence is insufficient or conflicting.')
+
+# Whole-investigation wall-clock limit, checked before each model round. Worst case is
+# this plus one in-flight request timeout (60 s), well inside the executor's 300 s
+# evidence-freshness window.
+DEADLINE_SECONDS = 120
+
 
 def decision(context, rows, action, summary):
     return {'decision_id': context['incident_id'], 'order_id': context['order_id'],
@@ -75,6 +99,26 @@ def naive_retry(context, call_tool):
     return decision(context, rows, 'capture_approved_order', 'Naive baseline: retry capture for every checkout error.')
 
 
+def prompt_sha256():
+    return hashlib.sha256((SYSTEM + '\n' + FINAL_INSTRUCTION).encode()).hexdigest()
+
+
+class ProviderError(RuntimeError):
+    """The model gateway answered without a usable completion."""
+
+    def __init__(self, message, code=None):
+        super().__init__(message)
+        self.code = code
+
+
+def failure_category(stage, error):
+    """Category, type and numeric HTTP status only; never provider text or content."""
+    category = {'stage': stage, 'type': type(error).__name__}
+    if isinstance(error, (urllib.error.HTTPError, ProviderError)) and type(error.code) is int:
+        category['http_status'] = error.code
+    return category
+
+
 class ChatTransport:
     def __init__(self):
         self.endpoint = os.environ['INCIDENTLAB_LLM_URL']
@@ -89,9 +133,11 @@ class ChatTransport:
 
     def metadata(self):
         return {'model': self.model, 'endpoint_host': urlparse(self.endpoint).hostname,
+                'prompt_version': PROMPT_VERSION, 'prompt_sha256': prompt_sha256(),
                 'temperature': self.temperature, 'max_tokens': self.max_tokens,
                 'final_max_tokens': self.final_max_tokens,
-                'timeout_seconds': self.timeout, 'max_rounds': 5, 'max_tool_calls': 6,
+                'timeout_seconds': self.timeout, 'deadline_seconds': DEADLINE_SECONDS,
+                'max_rounds': 5, 'max_tool_calls': 6,
                 'calls': self.calls, 'usage': self.usage, 'returned_models': self.returned_models,
                 'responses': self.responses, 'final_output_format': 'json_schema'}
 
@@ -109,10 +155,22 @@ class ChatTransport:
         request = urllib.request.Request(self.endpoint, json.dumps(payload).encode(),
             {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + self.key})
         self.calls += 1
-        with urllib.request.urlopen(request, timeout=self.timeout) as response:
-            result = json.load(response)
+        phase = 'diagnostics' if tools else 'proposal'
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout) as response:
+                result = json.load(response)
+        except urllib.error.HTTPError as error:
+            # Status code only (e.g. 429 rate limit, 401 auth); never the response body.
+            self.responses.append({'finish_reason': None, 'http_status': error.code, 'phase': phase})
+            raise
         self.usage.append(result.get('usage', {}))
         self.returned_models.append(result.get('model'))
+        if not result.get('choices'):
+            # Some gateways return HTTP 200 with an error body. Keep only a numeric code.
+            error = result.get('error') if isinstance(result.get('error'), dict) else {}
+            code = error.get('code') if isinstance(error.get('code'), int) else None
+            self.responses.append({'finish_reason': None, 'http_status': code, 'phase': phase})
+            raise ProviderError('Model provider returned no completion.', code)
         choice = result['choices'][0]
         self.responses.append({'finish_reason': choice.get('finish_reason'),
                                'phase': 'diagnostics' if tools else 'proposal'})
@@ -122,8 +180,9 @@ class ChatTransport:
 
 
 class AIInvestigator:
-    def __init__(self, transport):
+    def __init__(self, transport, deadline_seconds=DEADLINE_SECONDS, clock=time.monotonic):
         self.transport = transport
+        self.deadline_seconds, self.clock = deadline_seconds, clock
         self.last_failure = False
         self.last_diagnostics = []
         self.last_error = None
@@ -140,22 +199,18 @@ class AIInvestigator:
                     {'role': 'user', 'content': json.dumps(context)}]
         rows = []
         stage = 'model_request'
+        deadline = self.clock() + self.deadline_seconds
         try:
             for _ in range(5):
+                if self.clock() > deadline:
+                    stage = 'deadline'
+                    raise TimeoutError('Investigation deadline exceeded.')
                 stage = 'model_request'
                 complete = {r['tool'] for r in rows} == set(TOOLS)
                 if complete:
-                    messages.append({'role': 'user', 'content':
-                        'Diagnostic collection is complete. Do not call more tools. Return only the final '
-                        'JSON object, without markdown, matching the decision schema. Use decision_id='
-                        + json.dumps(context['incident_id']) + ' and order_id='
-                        + json.dumps(context['order_id']) + '. Cite observed evidence IDs. '
-                        'Before choosing recovery, explicitly check custom_id equals the LOCAL order ID, '
-                        'fulfillment_count is zero, and the local capture reference is compatible: '
-                        'null for capture; null or exactly the provider capture ID for reconciliation. '
-                        'Any failed gate requires escalate. Missing confirmation is not a conflicting '
-                        'non-null capture ID. Cite the conflict in the summary. '
-                        'Choose escalate if the evidence is insufficient or conflicting.'})
+                    messages.append({'role': 'user', 'content': FINAL_INSTRUCTION.format(
+                        decision_id=json.dumps(context['incident_id']),
+                        order_id=json.dumps(context['order_id']))})
                 reply = self.transport(messages, [] if complete else tools)
                 calls = reply.get('tool_calls') or []
                 content = reply.get('content') or ''
@@ -193,7 +248,7 @@ class AIInvestigator:
             self.last_error = {'stage': 'round_limit', 'type': 'BudgetExceeded'}
         except Exception as error:
             # Retain categories only; never provider text, model content or credentials.
-            self.last_error = {'stage': stage, 'type': type(error).__name__}
+            self.last_error = failure_category(stage, error)
         self.last_failure = True
         if not rows:
             rows.append(call_tool(TOOLS[0], {'order_id': context['order_id']}))
