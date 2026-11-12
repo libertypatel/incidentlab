@@ -77,7 +77,8 @@ each step.
 **Project team**
 
 - **Liberty Patel** built the payment backend and PayPal integration.
-- **Praise Wenegieme** contributed the stricter rules baseline and the held-out v2 conflict cases.
+- **Praise Wenegieme** contributed the stricter rules baseline, the held-out v2 and frozen
+  held-out v3 cases, the evaluation reliability work.
 
 **Tools used**
 
