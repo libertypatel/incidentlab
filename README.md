@@ -1,5 +1,6 @@
 <h1><img src="docs/img/logo.svg" width="44" align="top" alt=""> IncidentLab</h1>
 
+[![Demo video](https://img.shields.io/badge/Demo_video-YouTube-FF0000?style=flat-square&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=wh1eENj8Uek)
 ![PayPal AI Hackathon 2026](https://img.shields.io/badge/PayPal_AI_Hackathon-2026-0070BA?style=flat-square)
 ![PayPal Sandbox](https://img.shields.io/badge/PayPal-Sandbox_only-003087?style=flat-square&logo=paypal&logoColor=white)
 ![NVIDIA Nemotron](https://img.shields.io/badge/NVIDIA_Nemotron-via_Nebius-76B900?style=flat-square&logo=nvidia&logoColor=white)
@@ -18,7 +19,7 @@ every capture, and a separate verifier confirms the result.**
 
 **AI proposes, code decides, human approves, verifier confirms.**
 
-[Run the demo](#run-the-interactive-offline-demo) · [Evaluation](EVALUATION.md) ·
+**[Watch the demo video](https://www.youtube.com/watch?v=wh1eENj8Uek)** · [Run the demo](#run-the-interactive-offline-demo) · [Evaluation](EVALUATION.md) ·
 [Saved Sandbox run](sandbox-validation/ai-reconciliation-2026-11-10/run.json) ·
 Built by Liberty Patel and Praise Wenegieme for the PayPal AI Hackathon 2026
 
